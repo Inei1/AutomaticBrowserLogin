@@ -9,6 +9,7 @@ from kivy.uix.widget import Widget
 from kivy.core.window import Window
 from kivy.uix.modalview import ModalView
 from Crypto.Cipher import AES
+# noinspection PyUnresolvedReferences
 from secret import private_key
 
 kivy.require("1.10.0")
