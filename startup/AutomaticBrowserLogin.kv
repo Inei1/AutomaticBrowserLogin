@@ -1,0 +1,83 @@
+#:import Factory kivy.factory.Factory
+<Menu@FloatLayout>:
+    FloatLayout:
+        id: layout
+        size: root.size
+	    Button:
+	        id: add_button
+		    size_hint: (0.13, 0.06)
+		    pos_hint: {"x": 0.05, "y": 0.8}
+		    text: "Add"
+		    color: 0, 0, 0, 1
+		    font_size: 16
+		    on_release: Factory.Popup1().open()
+	    Label:
+	        size_hint: (0.4, 0.05)
+	        pos_hint: {"x": 0.5, "y": 0.8}
+	        text: "Website: https://www.reddit.com"
+	        font_size: 20
+	        color: 0, 0, 0, 1
+
+	        # Add button to run now as a way to test
+
+<Popup1@ModalView>:
+    size_hint: (0.7, 0.7)
+    auto_dismiss: False
+    title: "Add or Modify a Login"
+    FloatLayout:
+
+        Label:
+            size_hint: (0.2, 0.13)
+            pos_hint: {"x": 0.05, "y": 0.8}
+            text: "Website: "
+            color: 0, 0, 0, 1
+            font_size: 20
+        TextInput:
+            id: website_input
+            size_hint: (0.6, 0.13)
+            pos_hint: {"x": 0.3, "y": 0.8}
+
+        Label:
+            size_hint: (0.2, 0.13)
+            pos_hint: {"x": 0.05, "y": 0.65}
+            text: "Username: "
+            color: 0, 0, 0, 1
+            font_size: 20
+        TextInput:
+            id: user_input
+            size_hint: (0.6, 0.07)
+            pos_hint: {"x": 0.3, "y": 0.675}
+
+        Label:
+            size_hint: (0.2, 0.13)
+            pos_hint: {"x": 0.05, "y": 0.525}
+            text: "Password: "
+            color: 0, 0, 0, 1
+            font_size: 20
+        TextInput:
+            id: password_input
+            password: True
+            size_hint: (0.6, 0.07)
+            pos_hint: {"x": 0.3, "y": 0.55}
+
+        Label:
+            size_hint: (0.2, 0.13)
+            pos_hint: {"x": 0.05, "y": 0.4}
+            text: "Arguments: "
+            color: 0, 0, 0, 1
+            font_size: 20
+        TextInput:
+            id: arguments_input
+            size_hint: (0.6, 0.3)
+            pos_hint: {"x": 0.3, "y": 0.2}
+
+        Button:
+            size_hint: (0.4, 0.1)
+            pos_hint: {"x": 0.0725, "y": 0.05}
+            text: "Save and Close"
+            on_release: root.save_input()
+        Button:
+            size_hint: (0.4, 0.1)
+            pos_hint: {"x": 0.525, "y": 0.05}
+            text: "Close Without Saving"
+            on_release: root.dismiss()
