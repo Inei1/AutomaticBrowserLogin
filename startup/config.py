@@ -21,8 +21,12 @@ button that opens a popup for adding a website config
 browser website username password additional-options
 """
 
+# global variable used to determine which login to delete
+# definitely not the best way to do it, but it works
+delete_number = 0
 
-class Popup1(ModalView):
+
+class AddOrModifyPopup(ModalView):
 
     def load_input(self):
         print("HGJGHJFTJFH")
@@ -32,9 +36,9 @@ class Popup1(ModalView):
         username = user_info.readline()
         arguments = user_info.readline()
 
-        nonce, tag, ciphertext = [password_info.read(x) for x in (16, 16, -1)]
+        nonce, tag, cipher_text = [password_info.read(x) for x in (16, 16, -1)]
         cipher = AES.new(private_key, AES.MODE_EAX, nonce)
-        password = cipher.decrypt_and_verify(ciphertext, tag)
+        password = cipher.decrypt_and_verify(cipher_text, tag)
 
         # splice off newlines at the end of all except password, which does not have one
         self.ids.website_input.text = website[:-1]
@@ -72,9 +76,39 @@ class Popup1(ModalView):
         root_ids.layout.remove_widget(root_ids.add_button)
         self.dismiss()
 
+
+class DeletePopup(ModalView):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
     # using the given integer, delete the lines of the file for the info
-    def delete_info(self, number):
-        pass
+    def delete_info(self):
+        global delete_number
+        print("number:", delete_number)
+        user_info = open("userInfo.dat", "rb")
+        password_file = open("password.bin", "rb")
+        temp = open("temp.dat", "wb+")
+        delete_begin = 0
+        delete_end = 0
+        # find the beginning and end of the information to delete
+        for line in user_info:
+            if b"|" in line:
+                delete_number -= 1
+                if delete_number == 0:
+                    delete_end = user_info.tell()
+                    break
+                delete_begin = user_info.tell()
+        # go through again, writing to a temp file and overriding the original file
+        for line in user_info:
+            temp.write(line)
+            if user_info.tell() == delete_begin:
+                while user_info.tell() != delete_end:
+                    user_info.readline()  # discard line
+        user_info.close()
+        user_info = open("userInfo.dat", "wb")
+        user_info.write(temp.read())
+        self.dismiss()
 
 
 class Menu(FloatLayout):
@@ -82,14 +116,14 @@ class Menu(FloatLayout):
         super().__init__(**kwargs)
         modify_button = Button(text="Modify", color=(0, 0, 0, 1), size_hint=(0.13, 0.06),
                                pos_hint={"x": 0.05, "y": 0.8}, font_size=16,
-                               on_release=lambda x: Factory.Popup1().load_input())
+                               on_release=lambda x: Factory.AddOrModifyPopup().load_input())
         self.add_widget(modify_button)
         user_info = open("userInfo.dat", "rb")
         # file containing user's information is empty, so add the first add button
         if os.stat(user_info.name).st_size == 0:
             add_button = Button(text="Add", color=(0, 0, 0, 1), size_hint=(0.13, 0.06),
                                 pos_hint={"x": 0.05, "y": 0.8}, font_size=16,
-                                on_release=lambda x: Factory.Popup1().open())
+                                on_release=lambda x: Factory.AddOrModifyPopup().open())
             self.add_widget(add_button)
         else:
             logins = 0
@@ -98,19 +132,26 @@ class Menu(FloatLayout):
                 if b"|" in line:
                     delete_button = Button(text="Delete", color=(0, 0, 0, 1), size_hint=(0.13, 0.06),
                                            pos_hint={"x": 0.2, "y": 0.8 - (0.1 * logins)}, font_size=16,
-                                           on_release=lambda x: Factory.Popup1().delete_info(logins))
+                                           on_release=lambda x: delete_button_function(1))
                     self.add_widget(delete_button)
                     logins += 1
 
             add_button = Button(text="Add", color=(0, 0, 0, 1), size_hint=(0.13, 0.06),
                                 pos_hint={"x": 0.05, "y": 0.8 - (0.1 * logins)}, font_size=16,
-                                on_release=lambda x: Factory.Popup1().open())
+                                on_release=lambda x: Factory.AddOrModifyPopup.open())
             self.add_widget(add_button)
 
 
 class AutomaticBrowserLogin(App):
     def build(self):
         return Menu()
+
+
+def delete_button_function(button_number):
+    print(button_number)
+    global delete_number
+    delete_number = button_number
+    Factory.DeletePopup().open()
 
 
 if __name__ == "__main__":

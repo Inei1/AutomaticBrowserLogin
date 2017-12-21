@@ -10,7 +10,7 @@
 		    text: "Add"
 		    color: 0, 0, 0, 1
 		    font_size: 16
-		    on_release: Factory.Popup1().open()
+		    on_release: Factory.AddOrModifyPopup().open()
 	    Label:
 	        size_hint: (0.4, 0.05)
 	        pos_hint: {"x": 0.5, "y": 0.8}
@@ -20,7 +20,7 @@
 
 	        # Add button to run now as a way to test
 
-<Popup1@ModalView>:
+<AddOrModifyPopup@ModalView>:
     size_hint: (0.7, 0.7)
     auto_dismiss: False
     title: "Add or Modify a Login"
@@ -80,4 +80,28 @@
             size_hint: (0.4, 0.1)
             pos_hint: {"x": 0.525, "y": 0.05}
             text: "Close Without Saving"
+            on_release: root.dismiss()
+
+<DeletePopup@ModalView>:
+    size_hint: (0.4, 0.4)
+    auto_dismiss: False
+    title: "Confirm Delete"
+
+    FloatLayout:
+        Label:
+            size_hint: (0.6, 0.6)
+            pos_hint: {"x": 0.2, "y": 0.35}
+            markup: True
+            text: "[b]Are you sure you\n want to delete\n this login?[/b]"
+            color: 0, 0, 0, 1
+            font_size: 36
+        Button:
+            size_hint: (0.4, 0.15)
+            pos_hint: {"x": 0.0725, "y": 0.05}
+            text: "Yes"
+            on_release: root.delete_info()
+        Button:
+            size_hint: (0.4, 0.15)
+            pos_hint: {"x": 0.525, "y": 0.05}
+            text: "No"
             on_release: root.dismiss()
