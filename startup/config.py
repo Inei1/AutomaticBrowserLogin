@@ -72,8 +72,12 @@ class AddOrModifyPopup(ModalView):
         user_info.write(arguments)
         user_info.write(b"\n|\n")
         user_info.close()
-        root_ids = App.get_running_app().root.ids
-        root_ids.layout.remove_widget(root_ids.add_button)
+        app_root = App.get_running_app().root
+        app_root_children = app_root.children
+        # there will only ever be one add button, and it will have the id of add_button
+        for child in app_root_children:
+            if child.id == "add_button":
+                app_root.remove_widget(child)
         self.dismiss()
 
 
@@ -123,7 +127,9 @@ class Menu(FloatLayout):
         if os.stat(user_info.name).st_size == 0:
             add_button = Button(text="Add", color=(0, 0, 0, 1), size_hint=(0.13, 0.06),
                                 pos_hint={"x": 0.05, "y": 0.8}, font_size=16,
-                                on_release=lambda x: Factory.AddOrModifyPopup().open())
+                                on_release=lambda x: Factory.AddOrModifyPopup().open(),
+                                id="add_button")
+            print(add_button.id)
             self.add_widget(add_button)
         else:
             logins = 0
@@ -138,7 +144,8 @@ class Menu(FloatLayout):
 
             add_button = Button(text="Add", color=(0, 0, 0, 1), size_hint=(0.13, 0.06),
                                 pos_hint={"x": 0.05, "y": 0.8 - (0.1 * logins)}, font_size=16,
-                                on_release=lambda x: Factory.AddOrModifyPopup.open())
+                                on_release=lambda x: Factory.AddOrModifyPopup.open(),
+                                id="add_button")
             self.add_widget(add_button)
 
 
