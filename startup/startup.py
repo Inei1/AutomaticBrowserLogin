@@ -1,6 +1,11 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
+# IE command line arguments: https://msdn.microsoft.com/en-us/library/hh826025(v=vs.85).aspx
+# Firefox: https://developer.mozilla.org/en-US/docs/Mozilla/Command_Line_Options
+# Chrome: https://peter.sh/experiments/chromium-command-line-switches/
+# Edge: unknown
+
 
 class Startup:
     def __init__(self):

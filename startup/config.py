@@ -19,11 +19,17 @@ Window.clearcolor = (1, 1, 1, 1)
 """UI:
 button that opens a popup for adding a website config
 browser website username password additional-options
+
+Features to add:
+password for the main program, as a sort of master password
 """
 
 # global variable used to determine which login to delete
 # definitely not the best way to do it, but it works
 delete_number = 0
+
+# another global variable that keeps track of how many logins the user currently has
+logins = 0
 
 
 class AddOrModifyPopup(ModalView):
@@ -54,8 +60,8 @@ class AddOrModifyPopup(ModalView):
         # encrypt the password using AES encryption before writing it to the file
         # hide the add button and replace it with a modify button
         # modify the label nearby to show the website being entered
-        user_info = open("userInfo.dat", "wb")
-        password_file = open("password.bin", "wb")
+        user_info = open("userInfo.dat", "ab")
+        password_file = open("password.bin", "ab")
 
         # turn all input into byte arrays instead of strings
         website = self.ids.website_input.text.encode()
@@ -78,6 +84,17 @@ class AddOrModifyPopup(ModalView):
         for child in app_root_children:
             if child.id == "add_button":
                 app_root.remove_widget(child)
+        global logins
+        delete_button = get_standard_button("Delete", 0.2, 0.8 - (0.1 * logins), "delete_button" + str(logins),
+                                            delete_button_function, logins)
+        app_root.add_widget(delete_button)
+        logins += 1
+        modify_button = get_standard_button("Modify", 0.05, 0.8 - (0.1 * logins), "modify_button" + str(logins),
+                                            Factory.AddOrModifyPopup().load_input)
+        app_root.add_widget(modify_button)
+        add_button = get_standard_button("Add", 0.05, 0.8 - (0.1 * logins), "add_button",
+                                         Factory.AddOrModifyPopup().open)
+        app_root.add_widget(add_button)
         self.dismiss()
 
 
@@ -95,57 +112,71 @@ class DeletePopup(ModalView):
         temp = open("temp.dat", "wb+")
         delete_begin = 0
         delete_end = 0
+        delete_original = delete_number
         # find the beginning and end of the information to delete
+        delete_begin = user_info.tell()
         for line in user_info:
             if b"|" in line:
                 delete_number -= 1
-                if delete_number == 0:
+                if delete_number < 0:
                     delete_end = user_info.tell()
                     break
                 delete_begin = user_info.tell()
+        # reset position of user_info file
+        user_info.seek(0)
         # go through again, writing to a temp file and overriding the original file
         for line in user_info:
             temp.write(line)
             if user_info.tell() == delete_begin:
                 while user_info.tell() != delete_end:
                     user_info.readline()  # discard line
+
         user_info.close()
         user_info = open("userInfo.dat", "wb")
-        user_info.write(temp.read())
+        temp.seek(0)
+        for line in temp:
+            print(line)
+            user_info.write(line)
+        """for line in password_file:
+            temp.write(line)
+            delete_original -= 1
+            if delete_original == 0:
+                password_file.readline()  # discard line"""
         self.dismiss()
 
 
 class Menu(FloatLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        modify_button = Button(text="Modify", color=(0, 0, 0, 1), size_hint=(0.13, 0.06),
-                               pos_hint={"x": 0.05, "y": 0.8}, font_size=16,
-                               on_release=lambda x: Factory.AddOrModifyPopup().load_input())
+        modify_button = get_standard_button("Modify", 0.05, 0.8, "modify_button", Factory.AddOrModifyPopup().load_input)
+        # Button(text="Modify", color=(0, 0, 0, 1), size_hint=(0.13, 0.06),
+        #                       pos_hint={"x": 0.05, "y": 0.8}, font_size=16,
+        #                       on_release=lambda x: Factory.AddOrModifyPopup().load_input())
         self.add_widget(modify_button)
         user_info = open("userInfo.dat", "rb")
-        # file containing user's information is empty, so add the first add button
+        # if file containing user's information is empty, add the first add button
         if os.stat(user_info.name).st_size == 0:
-            add_button = Button(text="Add", color=(0, 0, 0, 1), size_hint=(0.13, 0.06),
-                                pos_hint={"x": 0.05, "y": 0.8}, font_size=16,
-                                on_release=lambda x: Factory.AddOrModifyPopup().open(),
-                                id="add_button")
-            print(add_button.id)
+            add_button = get_standard_button("Add", 0.05, 0.8, "add_button", Factory.AddOrModifyPopup().open)
+            # Button(text="Add", color=(0, 0, 0, 1), size_hint=(0.13, 0.06),
+            #                    pos_hint={"x": 0.05, "y": 0.8}, font_size=16,
+            #                    on_release=lambda x: Factory.AddOrModifyPopup().open(),
+            #                    id="add_button")
             self.add_widget(add_button)
         else:
-            logins = 0
+            global logins
             # search for | delimiter to see how many different logins the user has
             for line in user_info:
                 if b"|" in line:
-                    delete_button = Button(text="Delete", color=(0, 0, 0, 1), size_hint=(0.13, 0.06),
-                                           pos_hint={"x": 0.2, "y": 0.8 - (0.1 * logins)}, font_size=16,
-                                           on_release=lambda x: delete_button_function(1))
+                    delete_button = get_standard_button("Delete", 0.2, 0.8 - (0.1 * logins),
+                                                        "delete_button" + str(logins), delete_button_function, logins)
                     self.add_widget(delete_button)
+                    modify_button = get_standard_button("Modify", 0.05, 0.8 - (0.1 * logins), "modify_button" +
+                                                        str(logins), Factory.AddOrModifyPopup().load_input)
+                    self.add_widget(modify_button)
                     logins += 1
 
-            add_button = Button(text="Add", color=(0, 0, 0, 1), size_hint=(0.13, 0.06),
-                                pos_hint={"x": 0.05, "y": 0.8 - (0.1 * logins)}, font_size=16,
-                                on_release=lambda x: Factory.AddOrModifyPopup.open(),
-                                id="add_button")
+            add_button = get_standard_button("Add", 0.05, 0.8 - (0.1 * logins),
+                                             "add_button", Factory.AddOrModifyPopup().open)
             self.add_widget(add_button)
 
 
@@ -159,6 +190,12 @@ def delete_button_function(button_number):
     global delete_number
     delete_number = button_number
     Factory.DeletePopup().open()
+    return
+
+
+def get_standard_button(txt, x, y, btnid, release, *args):
+    return Button(text=txt, color=(0, 0, 0, 1), size_hint=(0.13, 0.06), pos_hint={"x": x, "y": y},
+                  font_size=16, on_release=lambda z: release(*args), id=btnid)
 
 
 if __name__ == "__main__":
