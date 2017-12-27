@@ -22,6 +22,13 @@ browser website username password additional-options
 
 Features to add:
 password for the main program, as a sort of master password
+
+TODO:
+Fix password implementation, currently does not work and would only give the same password for all if it does.
+fix modify button not being created when clicking add on the first button at startup for buttons other than the first
+make delete button remove the GUI buttons when clicked
+add labels to show the website on the right of the buttons so the user does not have to go into each modify button
+Write actual script for automatic logging in (startup.py, should be fairly easy)
 """
 
 # global variable used to determine which login to delete
@@ -42,16 +49,20 @@ class AddOrModifyPopup(ModalView):
         username = user_info.readline()
         arguments = user_info.readline()
 
+        password_info.seek(1)
         nonce, tag, cipher_text = [password_info.read(x) for x in (16, 16, -1)]
+        print(nonce, tag, cipher_text)
         cipher = AES.new(private_key, AES.MODE_EAX, nonce)
         password = cipher.decrypt_and_verify(cipher_text, tag)
 
-        # splice off newlines at the end of all except password, which does not have one
+        # splice off newlines at the end of all except password, which does not need one
         self.ids.website_input.text = website[:-1]
         self.ids.user_input.text = username[:-1]
         self.ids.password_input.text = password
         self.ids.arguments_input.text = arguments[:-1]
         self.open()
+        user_info.close()
+        password_info.close()
         pass
 
     def save_input(self):
@@ -70,7 +81,9 @@ class AddOrModifyPopup(ModalView):
         arguments = self.ids.arguments_input.text.encode()
         encoder = AES.new(private_key, AES.MODE_EAX)
         encrypted_pw, tag = encoder.encrypt_and_digest(password)
+        password_file.write(b"\n")
         [password_file.write(x) for x in (encoder.nonce, tag, encrypted_pw)]
+        password_file.close()
         user_info.write(website)
         user_info.write(b"\n")
         user_info.write(username)
@@ -108,13 +121,13 @@ class DeletePopup(ModalView):
         global delete_number
         print("number:", delete_number)
         user_info = open("userInfo.dat", "rb")
-        password_file = open("password.bin", "rb")
+        # password_file = open("password.bin", "rb")
         temp = open("temp.dat", "wb+")
         delete_begin = 0
         delete_end = 0
         delete_original = delete_number
         # find the beginning and end of the information to delete
-        delete_begin = user_info.tell()
+        delete_begin = user_info.tell() + 1  # the delete beginning is going to be +1 if this is the first login
         for line in user_info:
             if b"|" in line:
                 delete_number -= 1
@@ -126,22 +139,35 @@ class DeletePopup(ModalView):
         user_info.seek(0)
         # go through again, writing to a temp file and overriding the original file
         for line in user_info:
-            temp.write(line)
             if user_info.tell() == delete_begin:
                 while user_info.tell() != delete_end:
                     user_info.readline()  # discard line
+            temp.write(line)
 
         user_info.close()
         user_info = open("userInfo.dat", "wb")
+
         temp.seek(0)
         for line in temp:
             print(line)
             user_info.write(line)
+        temp.close()
+        temp = open("temp.dat", "wb+")
         """for line in password_file:
+            print(line)
             temp.write(line)
             delete_original -= 1
-            if delete_original == 0:
+            if delete_original < 0:
                 password_file.readline()  # discard line"""
+        """for pw in [password_file.read(x) for x in (16, 16, -1)]:
+            print(pw)
+            temp.write(line)
+            delete_original -= 1
+            if delete_original < 0:
+                [password_file.read(x) for x in (16, 16, -1)]  # discard"""
+        user_info.close()
+        # password_file.close()
+        temp.close()
         self.dismiss()
 
 
