@@ -28,6 +28,7 @@ Fix password implementation, currently does not work and would only give the sam
 fix modify button not being created when clicking add on the first button at startup for buttons other than the first
 make delete button remove the GUI buttons when clicked
 add labels to show the website on the right of the buttons so the user does not have to go into each modify button
+
 Write actual script for automatic logging in (startup.py, should be fairly easy)
 """
 
