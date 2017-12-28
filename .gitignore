@@ -1,10 +1,6 @@
 startup/secret.py
-startup/userInfo.dat
-startup/password.bin
-startup/temp.dat
 .idea
-<<<<<<< HEAD
 .idea/
-=======
-.idea/
->>>>>>> origin/master
+*.dat
+*.bin
+*.pyc

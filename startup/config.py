@@ -4,8 +4,6 @@ from kivy.app import App
 from kivy.factory import Factory
 from kivy.uix.button import Button
 from kivy.uix.floatlayout import FloatLayout
-from kivy.uix.screenmanager import Screen
-from kivy.uix.widget import Widget
 from kivy.core.window import Window
 from kivy.uix.modalview import ModalView
 from Crypto.Cipher import AES
@@ -18,23 +16,21 @@ Window.clearcolor = (1, 1, 1, 1)
 
 """UI:
 button that opens a popup for adding a website config
-browser website username password additional-options
-
-Features to add:
-password for the main program, as a sort of master password
+website username password browser additional-options
 
 TODO:
-Fix password implementation, currently does not work and would only give the same password for all if it does.
-fix modify button not being created when clicking add on the first button at startup for buttons other than the first
+fix password deletion
 make delete button remove the GUI buttons when clicked
 add labels to show the website on the right of the buttons so the user does not have to go into each modify button
 
+Features to add:
+password for the main program, as a sort of master password
 Write actual script for automatic logging in (startup.py, should be fairly easy)
 """
 
-# global variable used to determine which login to delete
+# global variable used to determine which login is being looked at
 # definitely not the best way to do it, but it works
-delete_number = 0
+login_number = 0
 
 # another global variable that keeps track of how many logins the user currently has
 logins = 0
@@ -44,26 +40,44 @@ class AddOrModifyPopup(ModalView):
 
     def load_input(self):
         print("HGJGHJFTJFH")
+        global login_number
+        print("number:", login_number)
         user_info = open("userInfo.dat", "rb")
-        password_info = open("password.bin", "rb")
+        password_file = open("password.bin", "rb")
+        login_original = login_number
+
+        # find the beginning line to read information from
+        for line in user_info:
+            if b"|" in line:
+                login_number -= 1
+                if login_number < 0:
+                    break
         website = user_info.readline()
         username = user_info.readline()
         arguments = user_info.readline()
 
-        password_info.seek(1)
-        nonce, tag, cipher_text = [password_info.read(x) for x in (16, 16, -1)]
-        print(nonce, tag, cipher_text)
+        while True:
+            test = password_file.read(1)
+            print(test)
+            if test == b"|":
+                login_original -= 1
+                if login_original < 0:
+                    break
+        nonce, tag, cipher_text = [password_file.read(x) for x in (16, 16, -1)]
+        if cipher_text.find(b"|") != -1:  # last password, do not remove anything from the end
+            cipher_text = cipher_text[:cipher_text.find(b"|")]  # get rid of pipe and everything after
+        print(nonce, '\n', tag, '\n', cipher_text, '\n')
         cipher = AES.new(private_key, AES.MODE_EAX, nonce)
         password = cipher.decrypt_and_verify(cipher_text, tag)
 
-        # splice off newlines at the end of all except password, which does not need one
+        # splice off newlines at the end of all except password, which does not have one
         self.ids.website_input.text = website[:-1]
         self.ids.user_input.text = username[:-1]
         self.ids.password_input.text = password
         self.ids.arguments_input.text = arguments[:-1]
         self.open()
         user_info.close()
-        password_info.close()
+        password_file.close()
         pass
 
     def save_input(self):
@@ -81,9 +95,20 @@ class AddOrModifyPopup(ModalView):
         password = self.ids.password_input.text.encode()
         arguments = self.ids.arguments_input.text.encode()
         encoder = AES.new(private_key, AES.MODE_EAX)
+        # anything stored in a file cannot have a | as it is used as a delimiter, so these lines of code generate
+        # a new password if a | is found in anything that would otherwise be written to the file
+        while encoder.nonce.find(b"|") != -1:
+            encoder = AES.new(private_key, AES.MODE_EAX)
         encrypted_pw, tag = encoder.encrypt_and_digest(password)
-        password_file.write(b"\n")
+        while encrypted_pw.find(b"|") != -1 or tag.find(b"|") != -1:
+            print("| found, making a new encoder and encrypted password")
+            encoder = AES.new(private_key, AES.MODE_EAX)
+            while encoder.nonce.find(b"|") != -1:
+                encoder = AES.new(private_key, AES.MODE_EAX)
+            encrypted_pw, tag = encoder.encrypt_and_digest(password)  # generate encrypted text without pipe |
+        password_file.write(b"|")
         [password_file.write(x) for x in (encoder.nonce, tag, encrypted_pw)]
+        [print(x) for x in (encoder.nonce, tag, encrypted_pw)]
         password_file.close()
         user_info.write(website)
         user_info.write(b"\n")
@@ -103,7 +128,7 @@ class AddOrModifyPopup(ModalView):
                                             delete_button_function, logins)
         app_root.add_widget(delete_button)
         logins += 1
-        modify_button = get_standard_button("Modify", 0.05, 0.8 - (0.1 * logins), "modify_button" + str(logins),
+        modify_button = get_standard_button("Modify", 0.05, 0.9 - (0.1 * logins), "modify_button" + str(logins),
                                             Factory.AddOrModifyPopup().load_input)
         app_root.add_widget(modify_button)
         add_button = get_standard_button("Add", 0.05, 0.8 - (0.1 * logins), "add_button",
@@ -119,20 +144,20 @@ class DeletePopup(ModalView):
 
     # using the given integer, delete the lines of the file for the info
     def delete_info(self):
-        global delete_number
-        print("number:", delete_number)
+        global login_number
+        print("number:", login_number)
         user_info = open("userInfo.dat", "rb")
         # password_file = open("password.bin", "rb")
         temp = open("temp.dat", "wb+")
         delete_begin = 0
         delete_end = 0
-        delete_original = delete_number
+        delete_original = login_number
         # find the beginning and end of the information to delete
         delete_begin = user_info.tell() + 1  # the delete beginning is going to be +1 if this is the first login
         for line in user_info:
             if b"|" in line:
-                delete_number -= 1
-                if delete_number < 0:
+                login_number -= 1
+                if login_number < 0:
                     delete_end = user_info.tell()
                     break
                 delete_begin = user_info.tell()
@@ -175,11 +200,6 @@ class DeletePopup(ModalView):
 class Menu(FloatLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        modify_button = get_standard_button("Modify", 0.05, 0.8, "modify_button", Factory.AddOrModifyPopup().load_input)
-        # Button(text="Modify", color=(0, 0, 0, 1), size_hint=(0.13, 0.06),
-        #                       pos_hint={"x": 0.05, "y": 0.8}, font_size=16,
-        #                       on_release=lambda x: Factory.AddOrModifyPopup().load_input())
-        self.add_widget(modify_button)
         user_info = open("userInfo.dat", "rb")
         # if file containing user's information is empty, add the first add button
         if os.stat(user_info.name).st_size == 0:
@@ -198,7 +218,7 @@ class Menu(FloatLayout):
                                                         "delete_button" + str(logins), delete_button_function, logins)
                     self.add_widget(delete_button)
                     modify_button = get_standard_button("Modify", 0.05, 0.8 - (0.1 * logins), "modify_button" +
-                                                        str(logins), Factory.AddOrModifyPopup().load_input)
+                                                        str(logins), modify_function_button, logins)
                     self.add_widget(modify_button)
                     logins += 1
 
@@ -214,9 +234,16 @@ class AutomaticBrowserLogin(App):
 
 def delete_button_function(button_number):
     print(button_number)
-    global delete_number
-    delete_number = button_number
+    global login_number
+    login_number = button_number
     Factory.DeletePopup().open()
+    return
+
+
+def modify_function_button(button_number):
+    global login_number
+    login_number = button_number
+    Factory.AddOrModifyPopup().load_input()
     return
 
 
