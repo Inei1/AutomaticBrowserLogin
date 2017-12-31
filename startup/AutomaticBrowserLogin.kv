@@ -3,13 +3,6 @@
     FloatLayout:
         id: layout
         size: root.size
-	    Label:
-	        size_hint: (0.4, 0.05)
-	        pos_hint: {"x": 0.5, "y": 0.8}
-	        text: "Website: https://www.reddit.com"
-	        font_size: 20
-	        color: 0, 0, 0, 1
-
 	        # Add button to run now as a way to test
 
 <AddOrModifyPopup@ModalView>:
@@ -126,7 +119,7 @@
             size_hint: (0.4, 0.15)
             pos_hint: {"x": 0.0725, "y": 0.05}
             text: "Yes"
-            on_release: root.delete_info()
+            on_release: root.delete_info_btn()
         Button:
             size_hint: (0.4, 0.15)
             pos_hint: {"x": 0.525, "y": 0.05}
