@@ -19,14 +19,21 @@ Window.clearcolor = (1, 1, 1, 1)
 website username password browser additional-options
 
 TODO:
-fix ui weirdness
-make modify do a modification instead of adding
-add labels to show the website on the right of the buttons so the user does not have to go into each modify button
+make browser buttons do something
+
+Bugs:
+
 
 Features to add:
 test button that runs everything
 password for the main program, as a sort of master password
 Write actual script for automatic logging in (startup.py, should be fairly easy)
+
+username file has this format:
+Pipe(|)+\n, website+\n, username+\n, arguments+\n, Pipe, repeat
+
+Password file has this format:
+Pipe (|), nonce, tag, ciphertext, Pipe, repeat
 """
 
 # global variable used to determine which login is being looked at
@@ -70,7 +77,7 @@ class AddOrModifyPopup(ModalView):
         nonce, tag, cipher_text = [password_file.read(x) for x in (16, 16, -1)]
         if cipher_text.find(b"|") != -1:  # last password, do not remove anything from the end
             cipher_text = cipher_text[:cipher_text.find(b"|")]  # get rid of pipe and everything after
-        print(nonce, '\n', tag, '\n', cipher_text, '\n')
+        print("nonce, tag, cipher_text:", nonce, '\n', tag, '\n', cipher_text, '\n')
         cipher = AES.new(private_key, AES.MODE_EAX, nonce)
         password = cipher.decrypt_and_verify(cipher_text, tag)
 
@@ -91,6 +98,7 @@ class AddOrModifyPopup(ModalView):
         # hide the add button and replace it with a modify button
         # modify the label nearby to show the website being entered
         global login_number
+        global logins
         global is_modify
         user_info = open("userInfo.dat", "ab")
         password_file = open("password.bin", "ab")
@@ -106,7 +114,7 @@ class AddOrModifyPopup(ModalView):
         if is_modify:
             delete_info()
         # anything stored in a file cannot have a | as it is used
-        #  as a delimiter, so these lines of code generate
+        # as a delimiter, so these lines of code generate
         # a new password if a | is found in anything that would otherwise be written to the file
         while encoder.nonce.find(b"|") != -1:
             encoder = AES.new(private_key, AES.MODE_EAX)
@@ -117,8 +125,11 @@ class AddOrModifyPopup(ModalView):
             while encoder.nonce.find(b"|") != -1:
                 encoder = AES.new(private_key, AES.MODE_EAX)
             encrypted_pw, tag = encoder.encrypt_and_digest(password)  # generate encrypted text without pipe |
-        password_file.write(b"|")
+        # delete_info has temporarily removed one login, so we need to check for one less
+        if not is_modify or login_number - 1 != logins:
+            password_file.write(b"|")
         [password_file.write(x) for x in (encoder.nonce, tag, encrypted_pw)]
+        print("written to password file:")
         [print(x) for x in (encoder.nonce, tag, encrypted_pw)]
         password_file.close()
         user_info.write(b"|\n")
@@ -158,7 +169,7 @@ class AddOrModifyPopup(ModalView):
                                pos_hint={"x": 0.5, "y": 0.9 - (0.1 * logins)},
                                size_hint=(0.4, 0.05), color=(0, 0, 0, 1), id="website_label" + str(logins))
             app_root.add_widget(info_label)"""
-        # is_modify = False
+        is_modify = False
         refresh_screen(app_root)
         self.dismiss()
 
@@ -299,6 +310,7 @@ def delete_info():
         app_root.add_widget(add_button)"""
     refresh_screen(app_root)
     is_delete = False
+    login_number = delete_original
     logins -= 1
 
 
@@ -315,7 +327,7 @@ def refresh_screen(app_root):
     while app_root.children[0].id is not None:
         app_root.remove_widget(app_root.children[0])
     user_info = open("userInfo.dat", "rb")
-    print(user_info.read())
+    print("user_info:", user_info.read())
     user_info.seek(0)
     # if file containing user's information is empty, add the first add button
     if os.stat(user_info.name).st_size == 0:
@@ -333,6 +345,10 @@ def refresh_screen(app_root):
                 modify_button = get_standard_button("Modify", 0.05, 0.8 - (0.1 * logins), "modify_button" +
                                                     str(logins), modify_function_button, logins)
                 app_root.add_widget(modify_button)
+                website_label = Label(text="Website: " + str(user_info.readline())[2:-3], size_hint=(0.5, 0.13),
+                                      pos_hint={"x": 0.4, "y": 0.8 - (0.1 * logins)}, font_size=24, color=(0, 0, 0, 1),
+                                      id="Label" + str(logins))
+                app_root.add_widget(website_label)
                 logins += 1
 
         add_button = get_standard_button("Add", 0.05, 0.8 - (0.1 * logins),
