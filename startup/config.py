@@ -169,6 +169,7 @@ class AddOrModifyPopup(ModalView):
                                pos_hint={"x": 0.5, "y": 0.9 - (0.1 * logins)},
                                size_hint=(0.4, 0.05), color=(0, 0, 0, 1), id="website_label" + str(logins))
             app_root.add_widget(info_label)"""
+        fix_password_file()
         is_modify = False
         refresh_screen(app_root)
         self.dismiss()
@@ -309,6 +310,7 @@ def delete_info():
                                          Factory.AddOrModifyPopup().open)
         app_root.add_widget(add_button)"""
     refresh_screen(app_root)
+    fix_password_file()
     is_delete = False
     login_number = delete_original
     logins -= 1
@@ -354,6 +356,27 @@ def refresh_screen(app_root):
         add_button = get_standard_button("Add", 0.05, 0.8 - (0.1 * logins),
                                          "add_button", Factory.AddOrModifyPopup().open)
         app_root.add_widget(add_button)
+
+
+# if the password file has two pipes || next to each other, then this is clearly an error and one of the pipes should
+# be removed
+def fix_password_file():
+    password_file = open("password.bin", "rb")
+    temp = open("temp.dat", "wb")
+    while True:
+        file_char = password_file.read(1)
+        if file_char == b"|":
+            # skip one character
+            next_char = password_file.read(1)
+            if next_char != b"|":
+                temp.write(next_char)
+            # else, do nothing, as the password file's file location has been moved one further
+            else:
+                print("Password file contained a buggy result and has been fixed. This is rare, and there may be a"
+                      "serious bug in the program if you see this!")
+        if file_char == b"":  # EOF
+            break
+        temp.write(file_char)
 
 
 class AutomaticBrowserLogin(App):
