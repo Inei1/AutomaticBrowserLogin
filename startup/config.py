@@ -4,6 +4,7 @@ from kivy.app import App
 from kivy.factory import Factory
 from kivy.uix.button import Button
 from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.togglebutton import ToggleButton
 from kivy.core.window import Window
 from kivy.uix.label import Label
 from kivy.uix.modalview import ModalView
@@ -19,7 +20,7 @@ Window.clearcolor = (1, 1, 1, 1)
 website username password browser additional-options
 
 TODO:
-make browser buttons do something
+work on browser buttons: delete, load
 
 Bugs:
 
@@ -65,6 +66,7 @@ class AddOrModifyPopup(ModalView):
                     break
         website = user_info.readline()
         username = user_info.readline()
+        browser = user_info.readline()
         arguments = user_info.readline()
         login_number = login_original
 
@@ -107,6 +109,14 @@ class AddOrModifyPopup(ModalView):
         website = self.ids.website_input.text.encode()
         username = self.ids.user_input.text.encode()
         password = self.ids.password_input.text.encode()
+        # result is saved as a list with one element, so we access the first and only element at [0]
+        browser = str([index for index, button in enumerate(ToggleButton.get_widgets("browser_selection"))
+                      if button.state == "down"][0] % 4).encode()
+        print(browser)
+        """for index, button in enumerate(ToggleButton.get_widgets("browser_selection")):
+            if button.state == "down":
+                browser = bytearray(index)
+                break"""
         arguments = self.ids.arguments_input.text.encode()
         encoder = AES.new(private_key, AES.MODE_EAX)
 
@@ -136,6 +146,8 @@ class AddOrModifyPopup(ModalView):
         user_info.write(website)
         user_info.write(b"\n")
         user_info.write(username)
+        user_info.write(b"\n")
+        user_info.write(browser)
         user_info.write(b"\n")
         user_info.write(arguments)
         user_info.write(b"\n")
@@ -381,7 +393,7 @@ def fix_password_file():
 
 class AutomaticBrowserLogin(App):
     def build(self):
-        # self.icon = TODO
+        self.icon = "Icon.png"
         return Menu()
 
 

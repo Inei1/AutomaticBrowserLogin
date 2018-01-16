@@ -4,7 +4,13 @@
         id: layout
         size: root.size
 	        # Add button to run now as a way to test
-
+        Button:
+            size_hint: (0.16, 0.06)
+            pos_hint: {"x": 0.37, "y": 0.9}
+            text: "Run Program"
+            color: 0, 0, 0, 1
+            font_size: 16
+            on_release: Factory
 <AddOrModifyPopup@ModalView>:
     size_hint: (0.7, 0.7)
     auto_dismiss: False
@@ -52,16 +58,9 @@
             color: 0, 0, 0, 1
             font_size: 20
         ToggleButton:
-            size_hint: (0.13, 0.07)
-            pos_hint: {"x": 0.3, "y": 0.43}
-            text: "Chrome"
-            color: 0, 0, 0, 1
-            group: "browser_selection"
-            font_size: 16
-        ToggleButton:
-            size_hint: (0.13, 0.07)
-            pos_hint: {"x": 0.43, "y": 0.43}
-            text: "Firefox"
+            size_hint: (0.12, 0.07)
+            pos_hint: {"x": 0.78, "y": 0.43}
+            text: "Edge"
             color: 0, 0, 0, 1
             group: "browser_selection"
             font_size: 16
@@ -73,9 +72,16 @@
             group: "browser_selection"
             font_size: 16
         ToggleButton:
-            size_hint: (0.12, 0.07)
-            pos_hint: {"x": 0.78, "y": 0.43}
-            text: "Edge"
+            size_hint: (0.13, 0.07)
+            pos_hint: {"x": 0.43, "y": 0.43}
+            text: "Firefox"
+            color: 0, 0, 0, 1
+            group: "browser_selection"
+            font_size: 16
+        ToggleButton:
+            size_hint: (0.13, 0.07)
+            pos_hint: {"x": 0.3, "y": 0.43}
+            text: "Chrome"
             color: 0, 0, 0, 1
             group: "browser_selection"
             font_size: 16
