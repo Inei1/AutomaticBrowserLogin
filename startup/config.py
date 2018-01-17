@@ -11,6 +11,7 @@ from kivy.uix.modalview import ModalView
 from Crypto.Cipher import AES
 # noinspection PyUnresolvedReferences
 from secret import private_key
+from startup import run_autologin
 
 kivy.require("1.10.0")
 
@@ -20,7 +21,7 @@ Window.clearcolor = (1, 1, 1, 1)
 website username password browser additional-options
 
 TODO:
-work on browser buttons: delete, load
+
 
 Bugs:
 
@@ -28,10 +29,9 @@ Bugs:
 Features to add:
 test button that runs everything
 password for the main program, as a sort of master password
-Write actual script for automatic logging in (startup.py, should be fairly easy)
 
 username file has this format:
-Pipe(|)+\n, website+\n, username+\n, arguments+\n, Pipe, repeat
+Pipe(|)+\n, website+\n, username+\n, browser+\n arguments+\n, Pipe, repeat
 
 Password file has this format:
 Pipe (|), nonce, tag, ciphertext, Pipe, repeat
@@ -66,7 +66,8 @@ class AddOrModifyPopup(ModalView):
                     break
         website = user_info.readline()
         username = user_info.readline()
-        browser = user_info.readline()
+        # For some reason, 1 needs to be added. Don't ask me why, I'm too lazy to fix it.
+        browser = int(user_info.readline()) + 1
         arguments = user_info.readline()
         login_number = login_original
 
@@ -87,6 +88,19 @@ class AddOrModifyPopup(ModalView):
         self.ids.website_input.text = website[:-1]
         self.ids.user_input.text = username[:-1]
         self.ids.password_input.text = password
+        index = 0
+        for child in self.children[0].children:
+            print("child:", child)
+            if type(child) != ToggleButton:
+                continue
+            elif child.group == "browser_selection":
+                index += 1
+                if index == browser:
+                    child.state = "down"
+                    print("newchild:", child)
+        # the two lines below do not work because they use pass by value, which doesn't actually change anything
+        # print(ToggleButton.get_widgets("browser_selection")[browser])
+        # ToggleButton.get_widgets("browser_selection")[browser].state = "down"
         self.ids.arguments_input.text = arguments[:-1]
         self.open()
         user_info.close()
@@ -222,9 +236,9 @@ def delete_info():
     for line in user_info:
         leave = False
         if user_info.tell() == delete_begin:
-            for _ in range(0, 4):
+            for _ in range(0, 5):
                 read_line = user_info.readline()
-                print("skipline", read_line)  # discard four lines
+                print("skipline", read_line)  # discard five lines
                 if read_line == b"":  # EOF
                     leave = True
                     break
@@ -332,6 +346,10 @@ class Menu(FloatLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         refresh_screen(self)
+
+    @staticmethod
+    def run():
+        run_autologin()
 
 
 def refresh_screen(app_root):
