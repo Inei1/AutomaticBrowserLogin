@@ -12,21 +12,27 @@ from secret import private_key
 
 class Startup:
     def __init__(self):
+        # forward slashes are needed because shlex.split() performed by webbrowser only recognizes / and not \
         self.chrome_driver_path = "D:/Users/PCUser4/Desktop/School/chromedriver_win32/chromedriver"
         self.options = Options()
         self.driver = webdriver.Chrome(executable_path=self.chrome_driver_path, chrome_options=self.options)
+        self.options.add_experimental_option("detach", True)
 
     def open_new(self, url, payload, browser):
         # self.options.add_argument("disable-infobars")
         # self.options.add_argument("--incognito")
         # self.options.add_argument("user-data-dir=C:/Users/PCUser4/AppData/Local/Google/Chrome/User Data")
-        self.options.add_experimental_option("detach", True)
-        self.driver.execute_script("window.open(" + str(url) + ", tab" + str(0) + ")")
-        self.driver.get(url)
-        user = self.driver.find_element_by_name("user")
-        user.send_keys(payload[0])
-        passwd = self.driver.find_element_by_name("passwd")
-        passwd.send_keys(payload[1])
+        print("url:", str(url)[2:-3])
+        self.driver.get(str(url)[2:-3])
+        # self.driver.execute_script("window.open('chrome://newtab', 'tab0')")
+        # self.driver.execute_script("window.open(" + "\"" + str(url)[2:-3] + "\"" + ")")
+        # self.driver.get(url)
+        print(payload)
+        print(str(payload["username"])[2:-3], str(payload["password"])[2:-1])
+        user = self.driver.find_element_by_xpath("//input[contains(@name, 'user') or contains(@name, 'email')]")
+        user.send_keys(str(payload["username"])[2:-3])
+        passwd = self.driver.find_element_by_xpath("//input[contains(@name, 'pass') or contains(@name, 'pw')]")
+        passwd.send_keys(str(payload["password"])[2:-1])
         user.submit()
 
     def run(self):
@@ -42,6 +48,7 @@ class Startup:
             user_info.readline()  # discard pipe (|)
 
             # TODO refactor duplicate code
+            password_file.read(1)  # discard pipe
             nonce, tag, cipher_text = [password_file.read(x) for x in (16, 16, -1)]
             if cipher_text.find(b"|") != -1:  # last password, do not remove anything from the end
                 cipher_text = cipher_text[:cipher_text.find(b"|")]  # get rid of pipe and everything after
@@ -53,7 +60,6 @@ class Startup:
             self.options.add_argument(arguments)
             self.open_new(url, payload, browser)
 
-        # forward slashes are needed because shlex.split() performed by webbrowser only recognizes / and not \
         # url = "chrome://newtab"
         # payload = {"user": "nerd951", "passwd": "RHitN77"}
         # self.driver.execute_script("window.open('chrome://newtab', 'tab2')")

@@ -21,7 +21,7 @@ Window.clearcolor = (1, 1, 1, 1)
 website username password browser additional-options
 
 TODO:
-
+Fix modify adding an extra | again
 
 Bugs:
 
