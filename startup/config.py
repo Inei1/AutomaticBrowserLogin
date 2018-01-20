@@ -22,12 +22,12 @@ website username password browser additional-options
 
 TODO:
 Fix modify adding an extra | again
+test button that runs everything
 
 Bugs:
 
 
 Features to add:
-test button that runs everything
 password for the main program, as a sort of master password
 
 username file has this format:
@@ -150,6 +150,7 @@ class AddOrModifyPopup(ModalView):
                 encoder = AES.new(private_key, AES.MODE_EAX)
             encrypted_pw, tag = encoder.encrypt_and_digest(password)  # generate encrypted text without pipe |
         # delete_info has temporarily removed one login, so we need to check for one less
+        # NOTE: this occasionally causes a bug where there are two |s in a row, but it is fixed below
         if not is_modify or login_number - 1 != logins:
             password_file.write(b"|")
         [password_file.write(x) for x in (encoder.nonce, tag, encrypted_pw)]
@@ -391,8 +392,9 @@ def refresh_screen(app_root):
 # if the password file has two pipes || next to each other, then this is clearly an error and one of the pipes should
 # be removed
 def fix_password_file():
-    password_file = open("password.bin", "rb")
-    temp = open("temp.dat", "wb")
+    password_file = open("password.bin", "rb+")
+    temp = open("temp.dat", "wb+")
+    fixed = False
     while True:
         file_char = password_file.read(1)
         if file_char == b"|":
@@ -402,11 +404,17 @@ def fix_password_file():
                 temp.write(next_char)
             # else, do nothing, as the password file's file location has been moved one further
             else:
-                print("Password file contained a buggy result and has been fixed. This is rare, and there may be a"
+                print("Password file contained a buggy result and has been fixed. This is rare, and there may be a "
                       "serious bug in the program if you see this!")
+                fixed = True
         if file_char == b"":  # EOF
             break
         temp.write(file_char)
+
+    if fixed:
+        password_file.seek(0)
+        temp.seek(0)
+        password_file.write(temp.read())
 
 
 class AutomaticBrowserLogin(App):
