@@ -11,10 +11,16 @@ from secret import private_key
 # Chrome: https://peter.sh/experiments/chromium-command-line-switches/
 # Edge: unknown
 
+# web driver downloads:
+# IE: https://www.microsoft.com/en-us/download/details.aspx?id=44069
+# Firefox: https://github.com/mozilla/geckodriver/releases
+# Chrome: https://sites.google.com/a/chromium.org/chromedriver/downloads
+# Edge: https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/
+
 
 """TODO:
 add functionality for firefox/IE/edge
-allow specifying a different webdriver path
+allow specifying a different web driver path (windows installer?)
 implement arguments functionality
 clean up code
 documentation
@@ -28,43 +34,36 @@ class Startup:
         self.options = Options()
         self.options.add_experimental_option("detach", True)
         self.options.add_argument("disable-infobars")
+        # causes to not work
         # self.options.add_argument("user-data-dir=C:/Users/PCUser4/AppData/Local/Google/Chrome/User Data")
-        self.driver = webdriver.Chrome(executable_path=self.chrome_driver_path, chrome_options=self.options)
+        self.chrome_driver = webdriver.Chrome(executable_path=self.chrome_driver_path, chrome_options=self.options)
+        self.firefox_driver = webdriver.Firefox()
+        self.internet_explorer_driver = webdriver.Ie()
+        self.edge_driver = webdriver.Edge()
+        self.driver = None
         # self.driver.set_page_load_timeout(60)
 
     def open_new(self, url, payload, browser, index):
-        # self.options.add_argument("--incognito")
-        # self.driver.execute_script("window.open('chrome://newtab', 'newtab')")
-        # self.driver.switch_to.window("newtab")
-        # self.driver = webdriver.Chrome(executable_path=self.chrome_driver_path, chrome_options=self.options)
-        # self.switch_to_new_tab()
+        if browser == 0:
+            self.driver = self.chrome_driver
+        elif browser == 1:
+            self.driver = self.firefox_driver
+        elif browser == 2:
+            self.driver = self.internet_explorer_driver
+        elif browser == 3:
+            self.driver = self.edge_driver
         print("first:", self.driver.current_window_handle)
         print("url:", str(url)[2:-3])
         self.driver.execute_script("window.open('%s')" % str(url)[2:-3])
         self.switch_to_new_tab()
-        # self.driver.execute_script("window.open('chrome://newtab', 'tab0')")
-        # self.driver.execute_script("window.open(" + "\"" + str(url)[2:-3] + "\"" + ")")
-        # self.driver.get(url)
         print(payload)
         print(str(payload["username"])[2:-3], str(payload["password"])[2:-1])
         user = self.driver.find_element_by_xpath("//input[contains(@name, 'user') or contains(@name, 'email') "
-                                                 "or contains(@name, 'login')]")
+                                                        "or contains(@name, 'login')]")
         user.send_keys(str(payload["username"])[2:-3])
         password = self.driver.find_element_by_xpath("//input[contains(@name, 'pass') or contains(@name, 'pw')]")
         password.send_keys(str(payload["password"])[2:-1])
         user.submit()
-        # self.switch_to_new_tab()
-        # self.driver.execute_script("window.open('chrome://newtab')")
-        # self.driver.execute_script("window.open('chrome://newtab', 'tab%s')" % str(index))
-        # sleep(5)
-        # newest_handle = ""
-        # for handles in self.driver.window_handles:
-        #    newest_handle = handles
-        # self.driver.switch_to.window(newest_handle)
-        # self.driver.execute_script("window.focus();")
-        # self.driver.switch_to.window("tab" + str(index))
-        # self.driver.switch_to.active_element()
-        # self.driver.execute_script("window.location.replace = " + str(url)[2:-3])
         return
 
     def switch_to_new_tab(self):
