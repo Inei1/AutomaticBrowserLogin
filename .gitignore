@@ -1,6 +1,8 @@
 startup/secret.py
+startup/geckodriver.log
 .idea
 .idea/
 *.dat
 *.bin
 *.pyc
+WebDrivers/
