@@ -170,32 +170,6 @@ class AddOrModifyPopup(ModalView):
         app_root = App.get_running_app().root
         # app_root_children = app_root.children
         # there will only ever be one add button, and it will have the id of add_button
-        """for child in app_root_children:
-            if child.id == "add_button":
-                app_root.remove_widget(child)
-            # if child.id == "website_label" + str(login_number) and is_modify:
-            #     app_root.remove_widget(child)"""
-        """global logins
-        if not is_modify:
-            delete_button = get_standard_button("Delete", 0.2, 0.8 - (0.1 * logins), "delete_button" + str(logins),
-                                                delete_button_function, logins)
-            app_root.add_widget(delete_button)
-            logins += 1
-            modify_button = get_standard_button("Modify", 0.05, 0.9 - (0.1 * logins), "modify_button" + str(logins),
-                                                modify_function_button, logins - 1)
-            app_root.add_widget(modify_button)
-            add_button = get_standard_button("Add", 0.05, 0.8 - (0.1 * logins), "add_button",
-                                             Factory.AddOrModifyPopup().open)
-            app_root.add_widget(add_button)"""
-        """info_label = Label(text="website: " + str(website)[2:-1], font_size=24,
-                               pos_hint={"x": 0.5, "y": 0.9 - (0.1 * logins)},
-                               size_hint=(0.4, 0.05), color=(0, 0, 0, 1), id="website_label" + str(logins))
-            app_root.add_widget(info_label)"""
-        """else:
-            info_label = Label(text="website: " + str(website)[2:-1], font_size=24,
-                               pos_hint={"x": 0.5, "y": 0.9 - (0.1 * logins)},
-                               size_hint=(0.4, 0.05), color=(0, 0, 0, 1), id="website_label" + str(logins))
-            app_root.add_widget(info_label)"""
         fix_password_file()
         is_modify = False
         refresh_screen(app_root)
@@ -208,6 +182,30 @@ class DeletePopup(ModalView):
 
     def delete_info_btn(self):
         delete_info()
+        self.dismiss()
+
+
+class OptionsPopup(ModalView):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        options_file = open("options.dat", "r")
+        self.ids.chrome_input.text = options_file.readline()[:-1]
+        self.ids.firefox_input.text = options_file.readline()[:-1]
+        self.ids.edge_input.text = options_file.readline()[:-1]
+        options_file.close()
+
+    def save_options(self):
+        options_file = open("options.dat", "w")
+        chrome_args = self.ids.chrome_input.text
+        firefox_args = self.ids.firefox_input.text
+        edge_args = self.ids.edge_input.text
+        options_file.write(chrome_args)
+        options_file.write("\n")
+        options_file.write(firefox_args)
+        options_file.write("\n")
+        options_file.write(edge_args)
+        options_file.write("\n")
+        options_file.close()
         self.dismiss()
 
 
@@ -296,46 +294,6 @@ def delete_info():
 
     # remove/add GUI buttons
     app_root = App.get_running_app().root
-    """app_root_children = app_root.children
-    # there will only ever be one add button, and it will have the id of add_button
-    if not is_modify:
-        for index, child in enumerate(app_root_children):
-            if child.id == "add_button":
-                app_root.remove_widget(child)
-                child = app_root_children[index]  # reset index, otherwise the buttons may be skipped
-            if child.id == "modify_button" + str(delete_original):
-                app_root.remove_widget(child)
-                child = app_root_children[index]
-            if child.id == "delete_button" + str(delete_original):
-                app_root.remove_widget(child)"""
-
-    """for child in app_root_children:  # shift all buttons below the deleted ones up 0.1y and adjust their ids
-            if child.id is None:
-                continue
-            id_number = child.id[-1:]
-            btn_id = child.id[:-1]
-            if not id_number.isdigit():
-                continue
-            if int(id_number) > delete_original:
-                # shift buttons up one, adjust ids appropriately, update the functions for each button
-                # this creates a new button with updated parameters and deletes the old one
-                if btn_id == "modify_button":
-                    button = get_standard_button(child.text, child.pos_hint["x"], child.pos_hint["y"] + 0.1,
-                                                 btn_id + str(int(id_number) - 1), modify_function_button,
-                                                 int(id_number) - 1)
-                elif btn_id == "delete_button":
-                    button = get_standard_button(child.text, child.pos_hint["x"], child.pos_hint["y"] + 0.1,
-                                                 btn_id + str(int(id_number) - 1), delete_button_function,
-                                                 int(id_number) - 1)
-                else:
-                    print("WHAT HAVE YOU DONE!?!?! Congratulations, you broke the program. This should never happen™!")
-                    print(child)
-                    continue
-                app_root.remove_widget(child)
-                app_root.add_widget(button)
-        add_button = get_standard_button("Add", 0.05, 0.9 - (0.1 * logins), "add_button",
-                                         Factory.AddOrModifyPopup().open)
-        app_root.add_widget(add_button)"""
     refresh_screen(app_root)
     fix_password_file()
     is_delete = False

@@ -30,6 +30,12 @@ clean up code
 
 class Startup:
     def __init__(self):
+        arguments = open("options.dat", "r")
+        chrome_arguments = arguments.readline()[:-1]  # splice newline off end of line
+        print(chrome_arguments)
+        # firefox_arguments = arguments.readline()[:-1]
+        # edge_arguments = arguments.readline()[:-1]
+        # TODO make function for below
         # forward slashes are needed because shlex.split() performed by webbrowser only recognizes / and not \
         appdata_dir = os.getenv("APPDATA")
         appdata_dir = appdata_dir.replace("\\", "/") + "/"
@@ -44,7 +50,9 @@ class Startup:
         # self.edge_options = selenium.webdriver.edge.options.Options()
         self.chrome_options.add_experimental_option("detach", True)
         self.chrome_options.add_argument("disable-infobars")
-        # causes to not work
+        self.chrome_options.add_argument("start-maximized")
+        self.chrome_options.add_argument(chrome_arguments)
+        # causes to not work if browser already open
         appdata_local_dir = os.getenv("LOCALAPPDATA")
         appdata_local_dir = appdata_local_dir.replace("\\", "/") + "/"
         self.chrome_options.add_argument("user-data-dir=" + appdata_local_dir + "Google/Chrome/User Data")
@@ -74,12 +82,20 @@ class Startup:
         sleep(5)
         print(payload)
         print(str(payload["username"])[2:-3], str(payload["password"])[2:-1])
-        user = self.driver.find_element_by_xpath("//input[contains(@name, 'user') or contains(@name, 'email') "
+        user = self.driver.find_element_by_xpath("//input[contains(@name, 'ser') or contains(@name, 'email') "
                                                  "or contains(@name, 'login')]")
         user.send_keys(str(payload["username"])[2:-3])
-        password = self.driver.find_element_by_xpath("//input[contains(@name, 'pass') or contains(@name, 'pw')]")
+        # yahoo and google logins ask for your info one at a time
+        submit = True
+        if self.driver.title.__contains__("Yahoo") or self.driver.title.__contains__("Google"):
+            user.submit()
+            submit = False
+            sleep(5)
+        password = self.driver.find_element_by_xpath("//input[contains(@name, 'ass') or contains(@name, 'pw')]"
+                                                     "[not(@type='hidden')]")
         password.send_keys(str(payload["password"])[2:-1])
-        user.submit()
+        if submit:
+            user.submit()
         return
 
     def switch_to_new_tab(self):
@@ -101,6 +117,7 @@ class Startup:
             url = line
             username = user_info.readline()
             browser = int(user_info.readline())
+            # TODO remove arguments from everywhere except options
             arguments = user_info.readline()
             user_info.readline()  # discard pipe (|)
 
@@ -117,9 +134,7 @@ class Startup:
             print("nonce, tag, cipher_text:", nonce, '\n', tag, '\n', cipher_text, '\n')
             cipher = AES.new(private_key, AES.MODE_EAX, nonce)
             password = cipher.decrypt_and_verify(cipher_text, tag)
-
             payload = {"username": username, "password": password}
-            # self.options.add_argument(arguments)
             self.open_new(url, payload, browser, index_original)
 
         # close first tab

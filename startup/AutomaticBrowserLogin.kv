@@ -6,11 +6,68 @@
 	        # Add button to run now as a way to test
         Button:
             size_hint: (0.16, 0.06)
-            pos_hint: {"x": 0.37, "y": 0.9}
+            pos_hint: {"x": 0.5, "y": 0.9}
             text: "Run Program"
             color: 0, 0, 0, 1
             font_size: 16
             on_release: Factory.Menu.run()
+        Button:
+            size_hint: (0.16, 0.06)
+            pos_hint: {"x": 0.3, "y": 0.9}
+            text: "Options"
+            color: 0, 0, 0, 1
+            font_size: 16
+            on_release: Factory.OptionsPopup().open()
+
+<OptionsPopup@ModalView>:
+    size_hint: (0.7, 0.7)
+    auto_dismiss: False
+    title: "Options"
+    FloatLayout:
+        Label:
+            size_hint: (0.2, 0.13)
+            pos_hint: {"x": 0.05, "y": 0.75}
+            text: "Chrome\nArguments: "
+            color: 0, 0, 0, 1
+            font_size: 20
+        TextInput:
+            id: chrome_input
+            size_hint: (0.6, 0.2)
+            pos_hint: {"x": 0.3, "y": 0.75}
+
+        Label:
+            size_hint: (0.2, 0.13)
+            pos_hint: {"x": 0.05, "y": 0.5}
+            text: "Firefox\nArguments: "
+            color: 0, 0, 0, 1
+            font_size: 20
+        TextInput:
+            id: firefox_input
+            size_hint: (0.6, 0.2)
+            pos_hint: {"x": 0.3, "y": 0.5}
+
+        Label:
+            size_hint: (0.2, 0.2)
+            pos_hint: {"x": 0.05, "y": 0.25}
+            text: "Edge\nArguments: "
+            color: 0, 0, 0, 1
+            font_size: 20
+        TextInput:
+            id: edge_input
+            password: True
+            size_hint: (0.6, 0.2)
+            pos_hint: {"x": 0.3, "y": 0.25}
+
+        Button:
+            size_hint: (0.4, 0.1)
+            pos_hint: {"x": 0.0725, "y": 0.05}
+            text: "Save and Close"
+            on_release: root.save_options()
+        Button:
+            size_hint: (0.4, 0.1)
+            pos_hint: {"x": 0.525, "y": 0.05}
+            text: "Close Without Saving"
+            on_release: root.dismiss()
 
 <AddOrModifyPopup@ModalView>:
     size_hint: (0.7, 0.7)
