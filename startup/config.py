@@ -67,8 +67,8 @@ class AddOrModifyPopup(ModalView):
         website = user_info.readline()
         username = user_info.readline()
         # For some reason, 1 needs to be added. Don't ask me why, I'm too lazy to fix it.
-        browser = int(user_info.readline()) + 1
-        arguments = user_info.readline()
+        # browser = int(user_info.readline()) + 1
+        # arguments = user_info.readline()
         login_number = login_original
 
         while True:
@@ -88,8 +88,8 @@ class AddOrModifyPopup(ModalView):
         self.ids.website_input.text = website[:-1]
         self.ids.user_input.text = username[:-1]
         self.ids.password_input.text = password
-        index = 0
-        for child in self.children[0].children:
+        # index = 0
+        """for child in self.children[0].children:
             print("child:", child)
             if type(child) != ToggleButton:
                 continue
@@ -97,11 +97,11 @@ class AddOrModifyPopup(ModalView):
                 index += 1
                 if index == browser:
                     child.state = "down"
-                    print("newchild:", child)
+                    print("newchild:", child)"""
         # the two lines below do not work because they use pass by value, which doesn't actually change anything
         # print(ToggleButton.get_widgets("browser_selection")[browser])
         # ToggleButton.get_widgets("browser_selection")[browser].state = "down"
-        self.ids.arguments_input.text = arguments[:-1]
+        # self.ids.arguments_input.text = arguments[:-1]
         self.open()
         user_info.close()
         password_file.close()
@@ -124,14 +124,14 @@ class AddOrModifyPopup(ModalView):
         username = self.ids.user_input.text.encode()
         password = self.ids.password_input.text.encode()
         # result is saved as a list with one element, so we access the first and only element at [0]
-        browser = str([index for index, button in enumerate(ToggleButton.get_widgets("browser_selection"))
-                      if button.state == "down"][0] % 4).encode()
-        print(browser)
+        # browser = str([index for index, button in enumerate(ToggleButton.get_widgets("browser_selection"))
+        #              if button.state == "down"][0] % 4).encode()
+        # print(browser)
         """for index, button in enumerate(ToggleButton.get_widgets("browser_selection")):
             if button.state == "down":
                 browser = bytearray(index)
                 break"""
-        arguments = self.ids.arguments_input.text.encode()
+        # arguments = self.ids.arguments_input.text.encode()
         encoder = AES.new(private_key, AES.MODE_EAX)
 
         # delete to make space for new, login_number is already set
@@ -162,10 +162,10 @@ class AddOrModifyPopup(ModalView):
         user_info.write(b"\n")
         user_info.write(username)
         user_info.write(b"\n")
-        user_info.write(browser)
-        user_info.write(b"\n")
-        user_info.write(arguments)
-        user_info.write(b"\n")
+        # user_info.write(browser)
+        # user_info.write(b"\n")
+        # user_info.write(arguments)
+        # user_info.write(b"\n")
         user_info.close()
         app_root = App.get_running_app().root
         # app_root_children = app_root.children
@@ -189,22 +189,46 @@ class OptionsPopup(ModalView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         options_file = open("options.dat", "r")
-        self.ids.chrome_input.text = options_file.readline()[:-1]
-        self.ids.firefox_input.text = options_file.readline()[:-1]
-        self.ids.edge_input.text = options_file.readline()[:-1]
+        self.ids.args_input.text = options_file.readline()[:-1]
+        # self.ids.firefox_input.text = options_file.readline()[:-1]
+        # self.ids.edge_input.text = options_file.readline()[:-1]
         options_file.close()
 
     def save_options(self):
+        # For some reason, 1 needs to be added. Don't ask me why, I'm too lazy to fix it.
+        options_file = open("options.dat", "r")
+        try:
+            browser = int(options_file.readline())
+        except:
+            browser = -1
+        index = 0
+        for child in self.children[0].children:
+            if browser == -1:
+                break
+            print("child:", child)
+            if type(child) != ToggleButton:
+                continue
+            elif child.group == "browser_selection":
+                index += 1
+                if index == browser:
+                    child.state = "down"
+                    print("newchild:", child)
+        options_file.close()
         options_file = open("options.dat", "w")
-        chrome_args = self.ids.chrome_input.text
-        firefox_args = self.ids.firefox_input.text
-        edge_args = self.ids.edge_input.text
-        options_file.write(chrome_args)
+        browser = str([index for index, button in enumerate(ToggleButton.get_widgets("browser_selection"))
+                      if button.state == "down"][0])
+        print("browser", browser)
+        args = self.ids.args_input.text
+        # firefox_args = self.ids.firefox_input.text
+        # edge_args = self.ids.edge_input.text
+        options_file.write(browser)
         options_file.write("\n")
-        options_file.write(firefox_args)
+        options_file.write(args)
         options_file.write("\n")
-        options_file.write(edge_args)
-        options_file.write("\n")
+        # options_file.write(firefox_args)
+        # options_file.write("\n")
+        # options_file.write(edge_args)
+        # options_file.write("\n")
         options_file.close()
         self.dismiss()
 
@@ -235,7 +259,7 @@ def delete_info():
     for line in user_info:
         leave = False
         if user_info.tell() == delete_begin:
-            for _ in range(0, 5):
+            for _ in range(0, 3):
                 read_line = user_info.readline()
                 print("skipline", read_line)  # discard five lines
                 if read_line == b"":  # EOF
@@ -280,6 +304,7 @@ def delete_info():
     temp.seek(0)
     # special case: if the last login is being deleted (logins == 0), then an extra | delimiter would be added
     # for both files, so both files are completely deleted below
+    print("logins:", logins)
     if logins != 0:
         password_file = open("password.bin", "wb")
         password_file.write(temp.read())
@@ -336,7 +361,10 @@ def refresh_screen(app_root):
                 modify_button = get_standard_button("Modify", 0.05, 0.8 - (0.1 * logins), "modify_button" +
                                                     str(logins), modify_function_button, logins)
                 app_root.add_widget(modify_button)
-                website_label = Label(text="Website: " + str(user_info.readline())[2:-3], size_hint=(0.5, 0.13),
+                website_label_text = str(user_info.readline())[2:-3]
+                website_label_text_end = website_label_text.find("/", 9)
+                website_label_text = website_label_text[:website_label_text_end]
+                website_label = Label(text="Website: " + website_label_text, size_hint=(0.5, 0.13),
                                       pos_hint={"x": 0.4, "y": 0.8 - (0.1 * logins)}, font_size=24, color=(0, 0, 0, 1),
                                       id="Label" + str(logins))
                 app_root.add_widget(website_label)

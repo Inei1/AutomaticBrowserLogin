@@ -30,9 +30,10 @@ clean up code
 
 class Startup:
     def __init__(self):
-        arguments = open("options.dat", "r")
-        chrome_arguments = arguments.readline()[:-1]  # splice newline off end of line
-        print(chrome_arguments)
+        options = open("options.dat", "r")
+        self.browser = int(options.readline())
+        chrome_arguments = options.readline()[:-1]  # splice newline off end of line
+        print("arguments:", chrome_arguments, "\nbrowser:", self.browser)
         # firefox_arguments = arguments.readline()[:-1]
         # edge_arguments = arguments.readline()[:-1]
         # TODO make function for below
@@ -66,13 +67,13 @@ class Startup:
         self.driver = None
         # self.driver.set_page_load_timeout(60)
 
-    def open_new(self, url, payload, browser, index):
-        if browser == 0:
+    def open_new(self, url, payload):
+        if self.browser == 0:
             self.driver = self.chrome_driver
-        elif browser == 1:
+        elif self.browser == 1:
             pass
         #    self.driver = self.firefox_driver
-        elif browser == 3:
+        elif self.browser == 3:
             pass
         #    self.driver = self.edge_driver
         print("first:", self.driver.current_window_handle)
@@ -111,14 +112,12 @@ class Startup:
         password_file = open("password.bin", "rb")
         user_info.readline()  # discard pipe (|)
         for index, line in enumerate(user_info):
-            index_original = index
+            # index_original = index
             password_file.seek(0)
             print("line", line, "index", index)
             url = line
             username = user_info.readline()
-            browser = int(user_info.readline())
-            # TODO remove arguments from everywhere except options
-            arguments = user_info.readline()
+            # arguments = user_info.readline()
             user_info.readline()  # discard pipe (|)
 
             while True:
@@ -135,7 +134,7 @@ class Startup:
             cipher = AES.new(private_key, AES.MODE_EAX, nonce)
             password = cipher.decrypt_and_verify(cipher_text, tag)
             payload = {"username": username, "password": password}
-            self.open_new(url, payload, browser, index_original)
+            self.open_new(url, payload)
 
         # close first tab
         self.driver.switch_to.window(self.driver.window_handles[0])
