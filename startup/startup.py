@@ -1,5 +1,7 @@
 import os
 from time import sleep
+
+from kivy.app import App
 from selenium import webdriver
 import selenium.webdriver.chrome.options
 import selenium.webdriver.firefox.options
@@ -30,10 +32,11 @@ clean up code
 
 class Startup:
     def __init__(self):
+        self.driver = None
         options = open("options.dat", "r")
         self.browser = int(options.readline())
-        chrome_arguments = options.readline()[:-1]  # splice newline off end of line
-        print("arguments:", chrome_arguments, "\nbrowser:", self.browser)
+        arguments = options.readline()[:-1]  # splice newline off end of line
+        print("arguments:", arguments, "\nbrowser:", self.browser)
         # firefox_arguments = arguments.readline()[:-1]
         # edge_arguments = arguments.readline()[:-1]
         # TODO make function for below
@@ -41,18 +44,22 @@ class Startup:
         appdata_dir = os.getenv("APPDATA")
         appdata_dir = appdata_dir.replace("\\", "/") + "/"
         self.chrome_driver_path = appdata_dir + "AutomaticBrowserLogin/WebDrivers/chromedriver_win32/chromedriver.exe"
-        # self.firefox_driver_path = appdata_dir + "AutomaticBrowserLogin/WebDrivers/geckodriver-v0.19.1-win64/" \
-        #                                         "geckodriver.exe"
-        # self.edge_driver_path = appdata_dir + "AutomaticBrowserLogin/WebDrivers/MicrosoftWebDriver"
+        self.firefox_driver_path = appdata_dir + "AutomaticBrowserLogin/WebDrivers/geckodriver-v0.19.1-win64/" \
+                                                 "geckodriver.exe"
+        self.edge_driver_path = appdata_dir + "AutomaticBrowserLogin/WebDrivers/MicrosoftWebDriver"
         os.environ["webdriver.chrome.driver"] = self.chrome_driver_path
         # need to have these long chains because Options() is the same name across all drivers
         self.chrome_options = selenium.webdriver.chrome.options.Options()
-        # self.firefox_options = selenium.webdriver.firefox.options.Options()
+        self.firefox_options = selenium.webdriver.firefox.options.Options()
         # self.edge_options = selenium.webdriver.edge.options.Options()
         self.chrome_options.add_experimental_option("detach", True)
         self.chrome_options.add_argument("disable-infobars")
-        self.chrome_options.add_argument("start-maximized")
-        self.chrome_options.add_argument(chrome_arguments)
+        # TODO fix lazy try-except
+        try:
+            self.chrome_options.add_argument(arguments)
+            # self.firefox_options.add_argument(arguments)
+        except:
+            pass
         # causes to not work if browser already open
         appdata_local_dir = os.getenv("LOCALAPPDATA")
         appdata_local_dir = appdata_local_dir.replace("\\", "/") + "/"
@@ -64,23 +71,22 @@ class Startup:
         #                                        firefox_options=self.firefox_options)
         # self.edge_driver = webdriver.Edge(self.edge_driver_path)  # no options for edge
         # self.edge_driver.close()
-        self.driver = None
         # self.driver.set_page_load_timeout(60)
 
     def open_new(self, url, payload):
         if self.browser == 0:
             self.driver = self.chrome_driver
         elif self.browser == 1:
-            pass
-        #    self.driver = self.firefox_driver
+            pass  # self.driver = self.firefox_driver
         elif self.browser == 3:
-            pass
-        #    self.driver = self.edge_driver
+            pass  # self.driver = self.edge_driver
+        elif self.browser == -1:
+            return
         print("first:", self.driver.current_window_handle)
         print("url:", str(url)[2:-3])
         self.driver.execute_script("window.open('%s')" % str(url)[2:-3])
         self.switch_to_new_tab()
-        sleep(5)
+        self.wait_for_load()
         print(payload)
         print(str(payload["username"])[2:-3], str(payload["password"])[2:-1])
         user = self.driver.find_element_by_xpath("//input[contains(@name, 'ser') or contains(@name, 'email') "
@@ -91,7 +97,10 @@ class Startup:
         if self.driver.title.__contains__("Yahoo") or self.driver.title.__contains__("Google"):
             user.submit()
             submit = False
-            sleep(5)
+            self.wait_for_load()
+        # canvas does not work properly with submit
+        if self.driver.current_url.__contains__(".edu/idp"):
+            submit = False
         password = self.driver.find_element_by_xpath("//input[contains(@name, 'ass') or contains(@name, 'pw')]"
                                                      "[not(@type='hidden')]")
         password.send_keys(str(payload["password"])[2:-1])
@@ -106,6 +115,11 @@ class Startup:
             if not handle == current_handle:
                 self.driver.switch_to.window(handle)
                 print(self.driver.window_handles, self.driver.current_window_handle)
+
+    def wait_for_load(self):
+        while str(self.driver.execute_script("return document.readyState")) != "complete":
+            sleep(1)
+        return
 
     def run(self):
         user_info = open("userInfo.dat", "rb")
@@ -139,6 +153,7 @@ class Startup:
         # close first tab
         self.driver.switch_to.window(self.driver.window_handles[0])
         self.driver.close()
+        App.get_running_app().stop()
         # if self.driver != self.firefox_driver:
         #    self.firefox_driver.close()
         # elif self.driver != self.chrome_driver:

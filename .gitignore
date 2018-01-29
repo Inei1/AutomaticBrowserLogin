@@ -6,3 +6,4 @@ startup/geckodriver.log
 *.bin
 *.pyc
 WebDrivers/
+Release/

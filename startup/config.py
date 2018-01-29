@@ -189,19 +189,12 @@ class OptionsPopup(ModalView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         options_file = open("options.dat", "r")
-        self.ids.args_input.text = options_file.readline()[:-1]
-        # self.ids.firefox_input.text = options_file.readline()[:-1]
-        # self.ids.edge_input.text = options_file.readline()[:-1]
-        options_file.close()
-
-    def save_options(self):
-        # For some reason, 1 needs to be added. Don't ask me why, I'm too lazy to fix it.
-        options_file = open("options.dat", "r")
+        # TODO fix lazy try-except
         try:
             browser = int(options_file.readline())
         except:
             browser = -1
-        index = 0
+        index = -1
         for child in self.children[0].children:
             if browser == -1:
                 break
@@ -213,10 +206,19 @@ class OptionsPopup(ModalView):
                 if index == browser:
                     child.state = "down"
                     print("newchild:", child)
+        self.ids.args_input.text = options_file.readline()[:-1]
+        # self.ids.firefox_input.text = options_file.readline()[:-1]
+        # self.ids.edge_input.text = options_file.readline()[:-1]
         options_file.close()
+
+    def save_options(self):
         options_file = open("options.dat", "w")
-        browser = str([index for index, button in enumerate(ToggleButton.get_widgets("browser_selection"))
-                      if button.state == "down"][0])
+        # TODO fix lazy try-except
+        try:
+            browser = str([index for index, button in enumerate(ToggleButton.get_widgets("browser_selection"))
+                          if button.state == "down"][0])
+        except:
+            browser = str(-1)
         print("browser", browser)
         args = self.ids.args_input.text
         # firefox_args = self.ids.firefox_input.text
