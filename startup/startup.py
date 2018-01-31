@@ -32,11 +32,18 @@ clean up code
 
 class Startup:
     def __init__(self):
+        self.browser = None
         self.driver = None
-        options = open("options.dat", "r")
-        self.browser = int(options.readline())
-        arguments = options.readline()[:-1]  # splice newline off end of line
-        print("arguments:", arguments, "\nbrowser:", self.browser)
+        skip_options = False
+        options = ""
+        try:
+            options = open("options.dat", "r")
+        except:
+            skip_options = True
+        if not skip_options:
+            self.browser = int(options.readline())
+            arguments = options.readline()[:-1]  # splice newline off end of line
+            print("arguments:", arguments, "\nbrowser:", self.browser)
         # firefox_arguments = arguments.readline()[:-1]
         # edge_arguments = arguments.readline()[:-1]
         # TODO make function for below
@@ -122,8 +129,11 @@ class Startup:
         return
 
     def run(self):
-        user_info = open("userInfo.dat", "rb")
-        password_file = open("password.bin", "rb")
+        try:
+            user_info = open("userInfo.dat", "rb")
+            password_file = open("password.bin", "rb")
+        except:
+            return
         user_info.readline()  # discard pipe (|)
         for index, line in enumerate(user_info):
             # index_original = index

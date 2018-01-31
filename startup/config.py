@@ -188,7 +188,12 @@ class DeletePopup(ModalView):
 class OptionsPopup(ModalView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        options_file = open("options.dat", "r")
+        new_file = False
+        options_file = ""
+        try:
+            options_file = open("options.dat", "r")
+        except:
+            new_file = True
         # TODO fix lazy try-except
         try:
             browser = int(options_file.readline())
@@ -206,10 +211,11 @@ class OptionsPopup(ModalView):
                 if index == browser:
                     child.state = "down"
                     print("newchild:", child)
-        self.ids.args_input.text = options_file.readline()[:-1]
+        if not new_file:
+            self.ids.args_input.text = options_file.readline()[:-1]
         # self.ids.firefox_input.text = options_file.readline()[:-1]
         # self.ids.edge_input.text = options_file.readline()[:-1]
-        options_file.close()
+            options_file.close()
 
     def save_options(self):
         options_file = open("options.dat", "w")
@@ -344,7 +350,13 @@ def refresh_screen(app_root):
     # iterates to the next one on its own, and some buttons are skipped
     while app_root.children[0].id is not None:
         app_root.remove_widget(app_root.children[0])
-    user_info = open("userInfo.dat", "rb")
+    # TODO fix lazy try
+    try:
+        user_info = open("userInfo.dat", "rb")
+    except:
+        add_button = get_standard_button("Add", 0.05, 0.8, "add_button", Factory.AddOrModifyPopup().open)
+        app_root.add_widget(add_button)
+        return
     print("user_info:", user_info.read())
     user_info.seek(0)
     # if file containing user's information is empty, add the first add button
