@@ -12,7 +12,7 @@ The newest version of AutomaticBrowserLogin can be found on the releases page [h
 
 ## Usage
 
-When first running the program, look at the options menu and be sure the button for the browser you want to use is _blue_. Enter any arguments in the arguments box, separated by a space. A list of arguments can be found online for [Chrome](https://peter.sh/experiments/chromium-command-line-switches/) and [Firefox](https://developer.mozilla.org/en-US/docs/Mozilla/Command_Line_Options). To add a login, click on the add button on the main screen. In the website box, give the _full_ url to the login page of the website you with to login to. It is recommended to copy-paste the address when you navigate to the login page, such as https://github.com/login. The username and password boxes are self-explanitory, and should be given your username and password.
+When first running the program, look at the options menu and be sure the button for the browser you want to use is _blue_. Enter any arguments in the arguments box, separated by a space. A list of arguments can be found online for [Chrome](https://peter.sh/experiments/chromium-command-line-switches/) and [Firefox](https://developer.mozilla.org/en-US/docs/Mozilla/Command_Line_Options). To add a login, click on the add button on the main screen. In the website box, give the _full_ url to the login page of the website you with to login to. It is recommended to copy-paste the address when you navigate to the login page, such as https://github.com/login. The username and password boxes are self-explanitory, and should be given your username and password. You can leave them blank if you do not wish to login to the webpage.
 
 ## Common Problems
 
