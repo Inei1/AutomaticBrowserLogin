@@ -8,6 +8,7 @@ from kivy.uix.togglebutton import ToggleButton
 from kivy.core.window import Window
 from kivy.uix.label import Label
 from kivy.uix.modalview import ModalView
+# from kivy.uix.screenmanager import ScreenManager, Screen
 from Crypto.Cipher import AES
 # noinspection PyUnresolvedReferences
 from secret import private_key
@@ -348,9 +349,12 @@ def refresh_screen(app_root):
     # iterate through the list of buttons on the main screen and delete
     # a for loop is not used because it deletes a button and a new one takes its place, but the for loop
     # iterates to the next one on its own, and some buttons are skipped
+    # manager = ScreenManager()  # a new manager is created each time this function is called
+    # default_screen = Screen(name="Screen0")
+    # manager.add_widget(default_screen)
     while app_root.children[0].id is not None:
         app_root.remove_widget(app_root.children[0])
-    # TODO fix lazy try
+    # TODO fix lazy try/except
     try:
         user_info = open("userInfo.dat", "rb")
     except:
@@ -383,6 +387,15 @@ def refresh_screen(app_root):
                                       id="Label" + str(logins))
                 app_root.add_widget(website_label)
                 logins += 1
+                """if logins % 7 == 0:
+                    if logins % 7 > 0:
+                        # add previous page button
+                        previous_page_button = get_standard_button("Previous Page", 0.05, 0.1, "previous_page_button" +
+                                                                   str(logins//7), prev_page_function, logins//7)
+                    # new page button
+                    manager.add_widget(Screen(name="Screen" + str(logins//7)))
+                    new_page_button = get_standard_button("New Page", 0.2, 0.1, "new_page_button" + str(logins//7),
+                                                          new_page_function, logins//7)"""
 
         add_button = get_standard_button("Add", 0.05, 0.8 - (0.1 * logins),
                                          "add_button", Factory.AddOrModifyPopup().open)
@@ -391,6 +404,7 @@ def refresh_screen(app_root):
 
 # if the password file has two pipes || next to each other, then this is clearly an error and one of the pipes should
 # be removed
+# this function is currently never supposed to be called
 def fix_password_file():
     password_file = open("password.bin", "rb+")
     temp = open("temp.dat", "wb+")
@@ -421,6 +435,14 @@ class AutomaticBrowserLogin(App):
     def build(self):
         self.icon = "Icon.png"
         return Menu()
+
+
+def new_page_function(button_number):
+    pass
+
+
+def prev_page_function(button_number):
+    pass
 
 
 def delete_button_function(button_number):

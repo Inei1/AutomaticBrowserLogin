@@ -95,6 +95,8 @@ class Startup:
         self.switch_to_new_tab()
         self.wait_for_load()
         print(payload)
+        if payload["username"] == b"\n" and payload["password"] == b"":
+            return  # no username or password, open tab but do not input any information
         print(str(payload["username"])[2:-3], str(payload["password"])[2:-1])
         user = self.driver.find_element_by_xpath("//input[contains(@name, 'ser') or contains(@name, 'email') "
                                                  "or contains(@name, 'login')]")
