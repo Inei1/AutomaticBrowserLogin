@@ -1,3 +1,5 @@
+(note: this project's code is not a good indicator of my current skills. A complete rewrite of the code with more OOP is planned.)
+
 # AutomaticBrowserLogin
 
 AutomaticBrowserLogin is a configurable python script that automatically opens browser tabs and logs you in. A frontend made in Kivy is provided to configure the websites to visit and the login information to enter. To log on to the websites, selenium webdriver is used to automatically submit login information. AutomaticBrowserLogin currently only supports the Chrome browser on Windows, but other platforms and browsers may be supported in the future.
