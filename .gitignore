@@ -1,9 +1,10 @@
-startup/secret.py
-startup/geckodriver.log
 .idea
 .idea/
 *.dat
 *.bin
 *.pyc
-WebDrivers/
-Release/
+__pycache__
+build
+bin
+bin/
+*.spec

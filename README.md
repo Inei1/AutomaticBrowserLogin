@@ -1,4 +1,4 @@
-(note: this project's code is not a good indicator of my current skills. A complete rewrite of the code with more OOP is planned.)
+(note: this project's code is not a good indicator of my current skills. A complete rewrite of the code is in progress.)
 
 # AutomaticBrowserLogin
 

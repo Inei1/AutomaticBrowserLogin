@@ -1,14 +1,14 @@
-import os
-from time import sleep
-
 from kivy.app import App
+
 from selenium import webdriver
 import selenium.webdriver.chrome.options
 import selenium.webdriver.firefox.options
 import selenium.webdriver.edge.options
+
 from Crypto.Cipher import AES
-# noinspection PyUnresolvedReferences
-from secret import private_key
+
+from time import sleep
+import os
 
 # command line arguments
 # Firefox: https://developer.mozilla.org/en-US/docs/Mozilla/Command_Line_Options
@@ -16,18 +16,6 @@ from secret import private_key
 # Edge: unknown
 
 # web driver downloads: http://www.seleniumhq.org/download/  scroll down
-
-
-"""
-TODO:
-documentation
-make user info work
-
-For post-release:
-add functionality for firefox/IE/edge
-implement arguments functionality
-clean up code
-"""
 
 
 class Startup:
