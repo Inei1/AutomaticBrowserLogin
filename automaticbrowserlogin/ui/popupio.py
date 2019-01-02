@@ -1,13 +1,15 @@
-import base64
-import json
-import logging
-import shutil
+from kivy.logger import Logger
 
 from Crypto.Cipher import AES
 
 from automaticbrowserlogin import user_info_directory, private_key, temp_directory
 
+import base64
+import json
+import shutil
 
+
+# options IO is handled in the options popup class
 class PopupIO:
     def __init__(self, button_number):
         super().__init__()
@@ -26,8 +28,8 @@ class PopupIO:
         shutil.move(temp_directory, user_info_directory)
 
     def load_input(self):
-        logging.debug("loading login")
-        logging.debug("user info directory is", user_info_directory)
+        Logger.debug("loading login")
+        Logger.debug("user info directory is", user_info_directory)
         user_info_file = open(user_info_directory, "rb")
         user_info_json = ""
         website = ""
@@ -37,18 +39,18 @@ class PopupIO:
             user_info_json = user_info_file.readline()
         if user_info_json != "":
             user_info = json.loads(user_info_json)
-            logging.debug("user info:", user_info)
+            Logger.debug("user info:", user_info)
 
             website = user_info.get("website")
             username = user_info.get("username")
             password = base64.b64decode(user_info.get("password"))
             if password != b"":
                 nonce, tag, cipher_text = [password[x] for x in (16, 16, -1)]
-                logging.debug("nonce, tag, cipher_text when loading:", nonce, '\n', tag, '\n', cipher_text, '\n')
+                Logger.debug("nonce, tag, cipher_text when loading:", nonce, '\n', tag, '\n', cipher_text, '\n')
                 cipher = AES.new(private_key, AES.MODE_EAX, nonce)
                 password = cipher.decrypt_and_verify(cipher_text, tag)
             else:
-                logging.warning("no password found when loading")
+                Logger.warning("no password found when loading")
                 password = b""
         user_info_file.close()
         return website, username, password
@@ -59,14 +61,14 @@ class PopupIO:
     # modify the label nearby to show the website being entered
     @staticmethod
     def save_input(website, username, password):
-        logging.debug("saving login")
-        logging.debug("user info directory is", user_info_directory)
+        Logger.debug("saving login")
+        Logger.debug("user info directory is", user_info_directory)
         user_info_file = open(user_info_directory, "a")
 
         encoder = AES.new(private_key, AES.MODE_EAX)
         encrypted_pw, tag = encoder.encrypt_and_digest(password)
-        logging.debug("written to password file:")
-        [logging.debug(x) for x in (encoder.nonce, tag, encrypted_pw)]
+        Logger.debug("written to password file:")
+        [Logger.debug(x) for x in (encoder.nonce, tag, encrypted_pw)]
         login = {"website": website, "username": username, "password": base64.b64encode(encrypted_pw).decode()}
 
         json.dump(login, user_info_file)

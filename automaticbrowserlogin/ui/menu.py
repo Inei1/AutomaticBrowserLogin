@@ -1,3 +1,4 @@
+from kivy.logger import Logger
 from kivy.uix.floatlayout import FloatLayout
 from kivy.factory import Factory
 from kivy.uix.button import Button
@@ -8,7 +9,6 @@ from automaticbrowserlogin import user_info_directory
 
 import os
 import json
-import logging
 
 
 class Menu(FloatLayout):
@@ -23,22 +23,22 @@ class Menu(FloatLayout):
     def refresh_screen(self):
         while self.children[0].id is not None:
             self.remove_widget(self.children[0])
-        logging.debug("refreshing screen")
+        Logger.debug("refreshing screen")
         try:
             user_info = open(user_info_directory, "rb")
         except FileNotFoundError:
             self.add_widget(self.get_standard_button("Add", 0.05, 0.8, "add_button", Factory.AddPopup().open))
-            logging.warning("no logins found")
+            Logger.warning("no logins found")
             return
 
-        logging.debug("user_info:", user_info.read())
+        Logger.debug("user_info:", user_info.read())
         user_info.seek(0)
         if os.stat(user_info.name).st_size == 0:
             add_button = self.get_standard_button("Add", 0.05, 0.8, "add_button", Factory.AddPopup().open)
             self.add_widget(add_button)
         else:
             for i, line in enumerate(user_info):
-                logging.debug("user info:", line[:-2].decode())
+                Logger.debug("user info:", line[:-2].decode())
                 login = json.loads(line[:-2].decode())
                 delete_button = self.get_standard_button("Delete", 0.2, 0.8 - (0.1 * i), "delete_button" + str(i),
                                                          self.delete_button_function, i)
@@ -61,13 +61,13 @@ class Menu(FloatLayout):
 
     @staticmethod
     def delete_button_function(button_number):
-        logging.debug("opening the delete popup for number:", button_number)
+        Logger.debug("opening the delete popup for number:", button_number)
         Factory.DeletePopup(button_number).open()
         return
 
     @staticmethod
     def modify_button_function(button_number):
-        logging.debug("loading a login to modify:", button_number)
+        Logger.debug("loading a login to modify:", button_number)
         Factory.ModifyPopup(button_number).open()
         return
 

@@ -1,4 +1,5 @@
 from kivy.app import App
+from kivy.logger import Logger
 
 from selenium import webdriver
 import selenium.webdriver.chrome.options
@@ -6,6 +7,8 @@ import selenium.webdriver.firefox.options
 import selenium.webdriver.edge.options
 
 from Crypto.Cipher import AES
+
+from automaticbrowserlogin import options_directory
 
 from time import sleep
 import os
@@ -25,8 +28,9 @@ class Startup:
         skip_options = False
         options = ""
         try:
-            options = open("options.dat", "r")
-        except:
+            options = open(options_directory, "r")
+        except FileNotFoundError:
+            Logger.error("options file not found, unable to determine browser to use!")
             skip_options = True
         if not skip_options:
             self.browser = int(options.readline())

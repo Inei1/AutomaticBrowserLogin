@@ -13,7 +13,6 @@ class ModifyPopup(ModalView):
 
     def load_input(self):
         self.ids.website_input.text, self.ids.user_input.text, self.ids.password_input.text = self.popup_io.load_input()
-        pass
 
     def save_input(self):
         self.popup_io.delete_login()

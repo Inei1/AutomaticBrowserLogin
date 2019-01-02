@@ -3,6 +3,7 @@ from kivy.app import App
 from kivy.core.window import Window
 from kivy.factory import Factory
 from kivy.lang import Builder
+from kivy.config import Config
 
 from automaticbrowserlogin.ui.menu import Menu
 from automaticbrowserlogin.ui.addpopup import AddPopup
@@ -11,10 +12,13 @@ from automaticbrowserlogin.ui.modifypopup import ModifyPopup
 from automaticbrowserlogin.ui.optionspopup import OptionsPopup
 from automaticbrowserlogin import root_directory
 
-
 kivy.require("1.10.0")
 
 Window.clearcolor = (1, 1, 1, 1)
+
+Config.set("kivy", "log_level", "info")
+# uncomment to enable logger debugging
+# Config.set("kivy", "log_level", "debug")
 
 
 class AutomaticBrowserLogin(App):

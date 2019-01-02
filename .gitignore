@@ -1,6 +1,6 @@
 .idea
 .idea/
-*.dat
+*.json
 *.bin
 *.pyc
 __pycache__

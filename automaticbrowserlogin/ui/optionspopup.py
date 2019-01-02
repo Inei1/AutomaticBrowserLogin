@@ -1,58 +1,53 @@
 from kivy.uix.modalview import ModalView
 from kivy.uix.togglebutton import ToggleButton
+from kivy.logger import Logger
+
+from automaticbrowserlogin import options_directory
+
+import json
 
 
 class OptionsPopup(ModalView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        new_file = False
-        options_file = ""
+        self.load_options()
+
+    def load_options(self):
         try:
-            options_file = open("options.dat", "r")
+            options_file = open(options_directory, "r")
         except FileNotFoundError:
-            new_file = True
-        # TODO fix lazy try-except
-        try:
-            browser = int(options_file.readline())
-        except EOFError:
-            browser = -1
+            Logger.warning("no options file found")
+            return
+        options = json.load(options_file)
+        self.activate_browser_button(int(options.get("browser")))
+        self.ids.args_input.text = options.get("args")
+        options_file.close()
+
+    def save_options(self):
+        options_file = open(options_directory, "w")
+        browser = -1
+        for button in ToggleButton.get_widgets("browser_selection"):
+            if button.state == "down":
+                # workaround for how kivy doesn't seem to delete the old buttons when closing a popup, so
+                # the old buttons are still there and the index goes over 3 and breaks everything
+                if button.text == "Chrome":
+                    browser = 0
+                elif button.text == "Firefox":
+                    browser = 1
+                elif button.text == "Edge":
+                    browser = 2
+        args = self.ids.args_input.text
+        options = {"args": args, "browser": browser}
+        json.dump(options, options_file)
+        options_file.close()
+        self.dismiss()
+
+    def activate_browser_button(self, browser):
         index = -1
         for child in self.children[0].children:
             if browser == -1:
                 break
-            print("child:", child)
-            if type(child) != ToggleButton:
-                continue
-            elif child.group == "browser_selection":
+            if type(child) == ToggleButton and child.group == "browser_selection":
                 index += 1
                 if index == browser:
                     child.state = "down"
-                    print("newchild:", child)
-        if not new_file:
-            self.ids.args_input.text = options_file.readline()[:-1]
-        # self.ids.firefox_input.text = options_file.readline()[:-1]
-        # self.ids.edge_input.text = options_file.readline()[:-1]
-            options_file.close()
-
-    def save_options(self):
-        options_file = open("options.dat", "w")
-        # TODO fix lazy try-except
-        try:
-            browser = str([index for index, button in enumerate(ToggleButton.get_widgets("browser_selection"))
-                          if button.state == "down"][0])
-        except:
-            browser = str(-1)
-        print("browser", browser)
-        args = self.ids.args_input.text
-        # firefox_args = self.ids.firefox_input.text
-        # edge_args = self.ids.edge_input.text
-        options_file.write(browser)
-        options_file.write("\n")
-        options_file.write(args)
-        options_file.write("\n")
-        # options_file.write(firefox_args)
-        # options_file.write("\n")
-        # options_file.write(edge_args)
-        # options_file.write("\n")
-        options_file.close()
-        self.dismiss()

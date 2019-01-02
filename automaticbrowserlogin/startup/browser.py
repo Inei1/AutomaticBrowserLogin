@@ -2,6 +2,6 @@ from enum import Enum
 
 
 class Browser(Enum):
-    CHROME = 1
-    FIREFOX = 2
-    EDGE = 3
+    CHROME = 0
+    FIREFOX = 1
+    EDGE = 2
