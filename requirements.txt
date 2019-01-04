@@ -1,0 +1,4 @@
+selenium==3.7.0
+Crypto==1.4.1
+kivy==1.10.0
+keyring==17.1.1

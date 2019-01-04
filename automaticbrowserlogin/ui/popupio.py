@@ -4,7 +4,7 @@ from Crypto.Cipher import AES
 
 from automaticbrowserlogin import user_info_directory, private_key, temp_directory
 
-import base64
+from base64 import b64encode, b64decode
 import json
 import shutil
 
@@ -43,9 +43,11 @@ class PopupIO:
 
             website = user_info.get("website")
             username = user_info.get("username")
-            password = base64.b64decode(user_info.get("password"))
+            password = b64decode(user_info.get("password"))
             if password != b"":
-                nonce, tag, cipher_text = [password[x] for x in (16, 16, -1)]
+                nonce = password[:16]
+                tag = password[16:32]
+                cipher_text = password[32:]
                 Logger.debug("nonce, tag, cipher_text when loading:", nonce, '\n', tag, '\n', cipher_text, '\n')
                 cipher = AES.new(private_key, AES.MODE_EAX, nonce)
                 password = cipher.decrypt_and_verify(cipher_text, tag)
@@ -67,10 +69,14 @@ class PopupIO:
 
         encoder = AES.new(private_key, AES.MODE_EAX)
         encrypted_pw, tag = encoder.encrypt_and_digest(password)
-        Logger.debug("written to password file:")
-        [Logger.debug(x) for x in (encoder.nonce, tag, encrypted_pw)]
-        login = {"website": website, "username": username, "password": base64.b64encode(encrypted_pw).decode()}
+        Logger.debug("nonce, tag, encrypted_pw:")
+        Logger.debug([x for x in (encoder.nonce, tag, encrypted_pw)])
+        encrypted_password_tuple = [x for x in (encoder.nonce, tag, encrypted_pw)]
+        json_password = b64encode(b"".join(encrypted_password_tuple)).decode()
+        Logger.debug("password written to file:")
+        Logger.debug(json_password)
 
+        login = {"website": website, "username": username, "password": json_password}
         json.dump(login, user_info_file)
         user_info_file.write("\n")
         user_info_file.close()
