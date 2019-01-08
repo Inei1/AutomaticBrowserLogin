@@ -1,6 +1,0 @@
-tested and works:
-https://github.com/login
-https://reddit.com/login
-
-tested and does not work:
-https://accounts.google.com/AccountChooser?service=mail&continue=https://mail.google.com/mail/

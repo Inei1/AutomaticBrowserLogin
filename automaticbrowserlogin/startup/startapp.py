@@ -3,6 +3,7 @@ from kivy.logger import Logger
 
 from selenium import webdriver
 import selenium.webdriver.chrome.options
+from selenium.webdriver.common.keys import Keys
 
 from automaticbrowserlogin import options_directory, user_info_directory
 from automaticbrowserlogin.ui.popupio import PopupIO
@@ -54,22 +55,30 @@ class Startup:
         self.do_login(website, payload)
 
     def do_login(self, website, payload):
+        if payload.get("username") == "" and payload.get("password") == "":
+            return
+        Logger.debug("website:", website)
+        Logger.debug("payload:", payload)
         user = self.driver.find_element_by_xpath("//input[contains(@name, 'ser') or contains(@name, 'email') "
                                                  "or contains(@name, 'login') or contains(@type, 'email')]")
         user.send_keys(payload.get("username"))
-        Logger.debug("website:", website)
-        Logger.debug("payload:", payload)
 
         # special cases
 
-        # yahoo and google logins ask for your info one at a time
-        if self.driver.title.__contains__("Yahoo") or self.driver.title.__contains__("Google"):
-            user.submit()
+        # Google login is unusual and a <span> element is used to submit both the username and password,
+        # so we need to use the enter key instead
+        if website.__contains__("google.com") or website.__contains__("yahoo.com"):
+            user.send_keys(Keys.ENTER)
+            # TODO: find a better method, this one is prone to race conditions
+            sleep(1)
             self.wait_for_load()
         password = self.driver.find_element_by_xpath("//input[contains(@name, 'ass') or contains(@name, 'pw')]"
                                                      "[not(@type='hidden')]")
         password.send_keys(payload.get("password"))
-        user.submit()
+        if website.__contains__("google.com") or website.__contains__("yahoo.com"):
+            password.send_keys(Keys.ENTER)
+        else:
+            user.submit()
 
     def switch_to_new_tab(self):
         handles = self.driver.window_handles

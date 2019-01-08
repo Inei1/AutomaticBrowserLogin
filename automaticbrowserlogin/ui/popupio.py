@@ -65,6 +65,8 @@ class PopupIO:
     def save_input(website, username, password):
         Logger.debug("saving login")
         Logger.debug("user info directory is", user_info_directory)
+        # TODO: the user info JSON file does not follow the json standard, a new outer field should be added when
+        # first creating the user_info JSON file
         user_info_file = open(user_info_directory, "a")
 
         encoder = AES.new(private_key, AES.MODE_EAX)
