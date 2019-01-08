@@ -17,6 +17,8 @@ kivy.require("1.10.0")
 Window.clearcolor = (1, 1, 1, 1)
 
 Config.set("kivy", "log_level", "info")
+
+
 # uncomment to enable logger debugging
 # Config.set("kivy", "log_level", "debug")
 
