@@ -1,3 +1,6 @@
+import io
+import zipfile
+
 from kivy.app import App
 from kivy.logger import Logger
 
@@ -5,12 +8,13 @@ from selenium import webdriver
 import selenium.webdriver.chrome.options
 from selenium.webdriver.common.keys import Keys
 
-from automaticbrowserlogin import options_directory, user_info_directory
+from automaticbrowserlogin import options_directory, user_info_directory, chrome_driver_version_directory
 from automaticbrowserlogin.ui.popupio import PopupIO
 
 from time import sleep
 import os
 import json
+import requests
 
 
 class Startup:
@@ -32,8 +36,16 @@ class Startup:
     def setup_browser(self):
         appdata_dir = os.getenv("APPDATA")
         appdata_dir = appdata_dir.replace("\\", "/") + "/"
-        # TODO: automatically get and update the WebDriver
         driver_path = appdata_dir + "AutomaticBrowserLogin/WebDrivers/chromedriver_win32/chromedriver.exe"
+        latest = requests.get("https://chromedriver.storage.googleapis.com/LATEST_RELEASE").text
+        try:
+            driver_version_file = open(chrome_driver_version_directory, "r")
+            driver_version = json.load(driver_version_file)
+            if not os.path.isfile(driver_path) or latest != driver_version:
+                self.update_webdriver(appdata_dir, latest)
+        except FileNotFoundError:
+            self.update_webdriver(appdata_dir, latest)
+
         browser_options = webdriver.chrome.options.Options()
         os.environ["webdriver.chrome.driver"] = driver_path
         browser_options.add_experimental_option("detach", True)
@@ -47,6 +59,18 @@ class Startup:
         browser_options.add_argument("user-data-dir=" + appdata_local_dir + "Google/Chrome/User Data")
 
         self.driver = webdriver.Chrome(executable_path=driver_path, chrome_options=browser_options)
+
+    @staticmethod
+    def update_webdriver(appdata_dir, latest):
+        if not os.path.isdir(appdata_dir + "AutomaticBrowserLogin/"):
+            os.makedirs(appdata_dir + "AutomaticBrowserLogin/Webdrivers/")
+        webdriver_download = requests.get("https://chromedriver.storage.googleapis.com/" + latest +
+                                          "/chromedriver_win32.zip")
+        webdriver_zip = zipfile.ZipFile(io.BytesIO(webdriver_download.content))
+        webdriver_zip.extractall(appdata_dir + "AutomaticBrowserLogin/Webdrivers/chromedriver_win32/")
+        driver_version_file = open(chrome_driver_version_directory, "w")
+        json.dump({"version": latest}, driver_version_file)
+        driver_version_file.close()
 
     def open_new(self, website, payload):
         self.driver.execute_script("window.open('%s')" % website)

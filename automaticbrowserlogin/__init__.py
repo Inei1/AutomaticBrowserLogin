@@ -6,6 +6,7 @@ root_directory = os.path.dirname(os.path.dirname(__file__))
 user_info_directory = root_directory + "/userInfo.json"
 temp_directory = root_directory + "/temp.json"
 options_directory = root_directory + "/options.json"
+chrome_driver_version_directory = root_directory + "/driverversion.json"
 
 service_id = "AutomaticBrowserLogin"
 # keyring.delete_password(service_id, "private_key")

@@ -1,10 +1,12 @@
 # AutomaticBrowserLogin
 
-AutomaticBrowserLogin is a configurable python script that automatically opens browser tabs and logs you in. A frontend made in Kivy is provided to configure the websites to visit and the login information to enter. To log on to the websites, selenium webdriver is used to automatically submit login information. AutomaticBrowserLogin currently only supports the Chrome browser on Windows, but other platforms and browsers may be supported in the future.
+## readme outdated, will be updated soon
+
+AutomaticBrowserLogin is a configurable python script that automatically opens browser tabs and logs you in. A frontend made in Kivy is provided to configure the websites to visit and the login information to enter. To log on to the websites, selenium webdriver is used to automatically submit login information. AutomaticBrowserLogin only supports the Chrome browser on Windows.
 
 ## Installation
 
-The newest version of AutomaticBrowserLogin can be found on the releases page [here](https://github.com/Inei1/AutomaticBrowserLogin/releases). The file may be downloaded to any location. After unzipping the folder, run "Config.bat" to configure the websites and information to for automatically logging in. Look at the Usage section for information on configuring the program. Run "Startup.bat" to test the program, then put "Startup.vbs" into the [startup directory](http://www.thewindowsclub.com/startup-folder-in-windows-8). After that, press WIN+R and type in APPDATA. Create a new folder called AutomaticBrowserLogin, and in that folder create another one called WebDrivers. Download the Chrome web driver at https://sites.google.com/a/chromium.org/chromedriver/ and unzip it into the newly created WebDrivers directory. (Doing this automatically is on the feature roadmap.)
+The newest version of AutomaticBrowserLogin can be found on the releases page [here](https://github.com/Inei1/AutomaticBrowserLogin/releases). The file may be downloaded to any location. After unzipping the folder, run "Config.bat" to configure the websites and information to for automatically logging in. Look at the Usage section for information on configuring the program. Run "Startup.bat" to test the program, then put "Startup.vbs" into the [startup directory](http://www.thewindowsclub.com/startup-folder-in-windows-8).
 
 **_Note: The webbrowser that you wish to use must NOT be open for this program to work!_** 
 
@@ -27,10 +29,6 @@ Double check that the information you entered is correct. If the problem persist
 #### Web browser does not start:
 
 Check that the browser is selected in the options menu. If the problem persists, follow the steps directly above.
-
-#### The batch file error message says something about Selenium
-
-Update your [Chrome driver](https://sites.google.com/a/chromium.org/chromedriver/).
 
 ## License
 
