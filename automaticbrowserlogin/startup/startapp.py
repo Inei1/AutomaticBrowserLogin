@@ -17,7 +17,14 @@ import json
 import requests
 
 
+# TODO: add some unit tests for this class
+# May need to refactor some of the functions to make better use of return values for this to be possible
 class Startup:
+    """
+    Starting point for the Startup App.
+    This does not use kivy, as it looks into the user info file to get its data,
+    which means it can be run as its own app.
+    """
     def __init__(self):
         self.arguments = ""
         self.driver = None
@@ -34,8 +41,26 @@ class Startup:
         self.arguments = options.get("args")
 
     def setup_browser(self):
-        appdata_dir = os.getenv("APPDATA")
-        appdata_dir = appdata_dir.replace("\\", "/") + "/"
+        """
+        Get the browser and WebDriver ready to open the webpages.
+        The appdata directory is used to download and store the Chrome WebDriver.
+        Some Chrome options are mandatory for the app to work, which are detach, disable-infobars, and user-data-dir.
+
+        Without adding the detach option, the web browser would immediately close after opening the web pages.
+        It ensures that selenium exits after opening the web pages.
+
+        disable-infobars gets rid of the annoying message that says "chrome is being controlled by automated software."
+        This does have the side effect of not showing info bars, but they seem to barely be used by Chrome in the
+        first place.
+
+        The user-data-dir option imports Chrome user data, and without this it would load up a Chrome browser with
+        what is essentially a fresh install. This means that there are no bookmarks or extensions without specifying the
+        user data. It is assumed that the user data is stored in Chrome's default directory.
+
+        Also, the ChromeDriver online API is used to determine if the latest version of the ChromeDriver is installed.
+        :return: nothing
+        """
+        appdata_dir = os.getenv("APPDATA").replace("\\", "/") + "/"
         driver_path = appdata_dir + "AutomaticBrowserLogin/WebDrivers/chromedriver_win32/chromedriver.exe"
         latest = requests.get("https://chromedriver.storage.googleapis.com/LATEST_RELEASE").text
         try:
@@ -62,6 +87,15 @@ class Startup:
 
     @staticmethod
     def update_webdriver(appdata_dir, latest):
+        """
+        Download the newest version of the Chrome WebDriver using the online API.
+        Since it is downloaded as a zip file, the process of unzipping must be done. The zip file itself is
+        stored in memory with BytesIO, so it doesn't need to be cleaned up. This is a fair expenditure seeing as the
+        ChromeDriver is only a few megabytes.
+        :param appdata_dir: the appdata directory
+        :param latest: the latest version of the Chrome WebDriver
+        :return: nothing
+        """
         if not os.path.isdir(appdata_dir + "AutomaticBrowserLogin/"):
             os.makedirs(appdata_dir + "AutomaticBrowserLogin/Webdrivers/")
         webdriver_download = requests.get("https://chromedriver.storage.googleapis.com/" + latest +
@@ -79,6 +113,12 @@ class Startup:
         self.do_login(website, payload)
 
     def do_login(self, website, payload):
+        """
+        Perform the actual input of the username and password into the website.
+        :param website: the website to log in to.
+        :param payload: the username and password  # TODO split this up into normal username/password
+        :return: nothing
+        """
         if payload.get("username") == "" and payload.get("password") == "":
             return
         Logger.debug("website:", website)
@@ -117,13 +157,17 @@ class Startup:
         return
 
     def run(self):
+        """
+        Automatically login to each webpage using the information from the user info file.
+        :return: nothing
+        """
         try:
             user_info = open(user_info_directory, "rb")
         except FileNotFoundError:
             Logger.error("User info file not found")
             return
         for index, line in enumerate(user_info):
-            website, username, password = PopupIO(index).load_login()
+            website, username, password = PopupIO(index, user_info_directory).load_login()
             payload = {"username": username, "password": password.decode()}
             self.open_new(website, payload)
 

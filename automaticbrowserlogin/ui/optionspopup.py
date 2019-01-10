@@ -7,6 +7,9 @@ import json
 
 
 class OptionsPopup(ModalView):
+    """
+    This class defines the IO for the options popup.
+    """
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.load_options()

@@ -9,14 +9,21 @@ import json
 import shutil
 
 
-# options IO is handled in the options popup class
 class PopupIO:
+    """
+    Defines the functions to be used by the add/modify/delete operations.
+    Options IO is handled in the options popup class.
+    """
     def __init__(self, button_number, user_info_path):
         super().__init__()
         self.button_number = button_number
         self.user_info_path = user_info_path
 
     def delete_login(self):
+        """
+        delete a login from the user info file
+        :return:
+        """
         user_info_file = open(self.user_info_path, "rb")
         temp = open(temp_directory, "wb+")
         for i in range(0, self.button_number):
@@ -29,6 +36,11 @@ class PopupIO:
         shutil.move(temp_directory, self.user_info_path)
 
     def load_login(self, encrypted=True):
+        """
+        Load a login from the user info file.
+        :param encrypted: whether or not the password must be decrypted first
+        :return: a tuple containing the website, username, and password
+        """
         Logger.debug("loading login")
         Logger.debug("user info directory is" + self.user_info_path)
         user_info_file = open(self.user_info_path, "rb")
@@ -60,11 +72,16 @@ class PopupIO:
         user_info_file.close()
         return website, username, password
 
-    # write user input in website, username, password, and arguments to a file
-    # encrypt the password using AES encryption before writing it to the file
-    # hide the add button and replace it with a modify button
-    # modify the label nearby to show the website being entered
     def save_login(self, website, username, password, encrypted=True):
+        """
+        Write website, username, password, from UI into the user info file.
+        The password is encrypted using AES encryption before writing it to the file.
+        :param website: the website to go to
+        :param username: the username to login to the website (may be empty)
+        :param password: the password to login to the website (may be empty)
+        :param encrypted: whether or not to encrypt the password
+        :return: nothing
+        """
         Logger.debug("saving login")
         Logger.debug("user info directory is" + self.user_info_path)
         # TODO: the user info JSON file does not follow the json standard, a new outer field should be added when

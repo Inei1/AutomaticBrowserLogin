@@ -12,6 +12,9 @@ import json
 
 
 class Menu(FloatLayout):
+    """
+    Defines the main menu of the application.
+    """
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.refresh_screen()
@@ -21,6 +24,13 @@ class Menu(FloatLayout):
         run_autologin()
 
     def refresh_screen(self):
+        """
+        Refresh the screen by looking at the user info file.
+        Modify and delete buttons are added for each login in the user info file.
+        Add buttons are placed for each login, but only the last one is visible. They all use the same function,
+        which is to open the add login popup.
+        :return: nothing
+        """
         while self.children[0].id is not None:
             self.remove_widget(self.children[0])
         Logger.debug("refreshing screen")
@@ -61,17 +71,27 @@ class Menu(FloatLayout):
 
     @staticmethod
     def delete_button_function(button_number):
-        Logger.debug("opening the delete popup for number:", button_number)
+        Logger.debug("opening the delete popup for number: " + button_number)
         Factory.DeletePopup(button_number).open()
         return
 
     @staticmethod
     def modify_button_function(button_number):
-        Logger.debug("loading a login to modify:", button_number)
+        Logger.debug("loading a login to modify: " + button_number)
         Factory.ModifyPopup(button_number).open()
         return
 
     @staticmethod
     def get_standard_button(txt, x, y, btnid, release, *args):
+        """
+        Generate a kivy button that looks like the other buttons in the ui.
+        :param txt: the button's text
+        :param x: the button's x position
+        :param y: the button's y position
+        :param btnid: the string id of the button
+        :param release: the function called upon releasing the button
+        :param args: arguments for the release function
+        :return: a kivy button using the above arguments
+        """
         return Button(text=txt, color=(0, 0, 0, 1), size_hint=(0.13, 0.06), pos_hint={"x": x, "y": y},
                       font_size=16, on_release=lambda z: release(*args), id=btnid)

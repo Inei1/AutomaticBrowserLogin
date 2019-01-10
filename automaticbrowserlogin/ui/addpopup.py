@@ -7,6 +7,9 @@ from automaticbrowserlogin import user_info_directory
 
 
 class AddPopup(ModalView):
+    """
+    This class contains the logic for the add popup.
+    """
     def __init__(self):
         super().__init__()
         self.popup_io = PopupIO(None, user_info_directory)

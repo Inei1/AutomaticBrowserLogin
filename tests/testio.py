@@ -7,6 +7,9 @@ import unittest
 
 
 class TestPopupIO(unittest.TestCase):
+    """
+    Tests for the PopupIO class.
+    """
     def setUp(self):
         self.user_info_line_1 = {"website": "https://example.com", "username": "testuser", "password": "testpass"}
         self.user_info_line_2 = {"website": "https://github.com/login", "username": "fakeuser",
@@ -40,7 +43,6 @@ class TestPopupIO(unittest.TestCase):
     def test_add_login_unencrypted(self):
         self.reload_user_info()
 
-        # self.io_2.save_login("https://github.com/login", "fakeuser", "fakepassword", encrypted=False)
         self.io_3.save_login("website", "user", "pass", encrypted=False)
         self.assertEqual(json.loads(self.user_info.readline()), self.user_info_line_1)
         self.assertEqual(json.loads(self.user_info.readline()), self.user_info_line_2)

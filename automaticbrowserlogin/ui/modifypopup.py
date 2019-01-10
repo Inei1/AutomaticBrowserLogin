@@ -7,6 +7,9 @@ from automaticbrowserlogin import user_info_directory
 
 
 class ModifyPopup(ModalView):
+    """
+    Defines the logic for the modify popup.
+    """
     def __init__(self, button_number):
         super().__init__()
         self.popup_io = PopupIO(button_number, user_info_directory)

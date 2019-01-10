@@ -24,6 +24,10 @@ Config.set("kivy", "log_level", "info")
 
 
 class AutomaticBrowserLogin(App):
+    """
+    Starting point for the config app.
+    This class configures and opens kivy.
+    """
     def build(self):
         self.icon = root_directory + "/Icon.png"
         self.register_classes()
