@@ -2,7 +2,7 @@ from kivy.logger import Logger
 
 from Crypto.Cipher import AES
 
-from automaticbrowserlogin import user_info_directory, private_key, temp_directory
+from automaticbrowserlogin import private_key, temp_directory
 
 from base64 import b64encode, b64decode
 import json

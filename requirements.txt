@@ -1,5 +1,7 @@
 requests==2.21.0
 selenium==3.7.0
-Crypto==1.4.1
-kivy==1.10.0
+pycryptodome==3.7.2
 keyring==17.1.1
+kivy==1.10.1
+kivy.deps.sdl2==0.1.18
+kivy.deps.glew==0.1.10
