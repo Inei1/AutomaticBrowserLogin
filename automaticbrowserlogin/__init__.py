@@ -3,7 +3,8 @@ import keyring
 import binascii
 
 root_directory = os.path.dirname(os.path.dirname(__file__))
-user_info_directory = root_directory + "/userInfo.json"
+user_info_directory = root_directory + "/userinfo.json"
+user_info_test_directory = root_directory + "/userinfotest.json"
 temp_directory = root_directory + "/temp.json"
 options_directory = root_directory + "/options.json"
 chrome_driver_version_directory = root_directory + "/driverversion.json"

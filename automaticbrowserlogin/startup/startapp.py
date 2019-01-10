@@ -123,7 +123,7 @@ class Startup:
             Logger.error("User info file not found")
             return
         for index, line in enumerate(user_info):
-            website, username, password = PopupIO(index).load_input()
+            website, username, password = PopupIO(index).load_login()
             payload = {"username": username, "password": password.decode()}
             self.open_new(website, payload)
 
