@@ -9,5 +9,7 @@ install:
   - "%PYTHON%\\python.exe -m pip install nose"
   - "%PYTHON%\\python.exe -m pip install wheel"
 
+build: off
+
 test_script:
   - "%PYTHON%\\python.exe -m nose"
