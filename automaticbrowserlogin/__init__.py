@@ -1,6 +1,9 @@
 import os
 import keyring
+from keyring.backends import Windows
 import binascii
+
+keyring.set_keyring(Windows.WinVaultKeyring())
 
 root_directory = os.path.dirname(os.path.dirname(__file__))
 user_info_directory = root_directory + "/userinfo.json"

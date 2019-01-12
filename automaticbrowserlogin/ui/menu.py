@@ -71,13 +71,13 @@ class Menu(FloatLayout):
 
     @staticmethod
     def delete_button_function(button_number):
-        Logger.debug("opening the delete popup for number: " + button_number)
+        Logger.debug("opening the delete popup for number: " + str(button_number))
         Factory.DeletePopup(button_number).open()
         return
 
     @staticmethod
     def modify_button_function(button_number):
-        Logger.debug("loading a login to modify: " + button_number)
+        Logger.debug("loading a login to modify: " + str(button_number))
         Factory.ModifyPopup(button_number).open()
         return
 

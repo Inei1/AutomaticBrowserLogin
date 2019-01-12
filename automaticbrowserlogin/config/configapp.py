@@ -10,6 +10,7 @@ from automaticbrowserlogin.ui.addpopup import AddPopup
 from automaticbrowserlogin.ui.deletepopup import DeletePopup
 from automaticbrowserlogin.ui.modifypopup import ModifyPopup
 from automaticbrowserlogin.ui.optionspopup import OptionsPopup
+from automaticbrowserlogin.ui.kivyui import ui_string
 from automaticbrowserlogin import root_directory
 
 kivy.require("1.10.1")
@@ -28,9 +29,9 @@ class AutomaticBrowserLogin(App):
     This class configures and opens kivy.
     """
     def build(self):
-        self.icon = root_directory + "/Icon.png"
+        self.icon = root_directory + "\\Icon.png"
         self.register_classes()
-        Builder.load_file(root_directory + "/automaticbrowserlogin/automaticbrowserlogin.kv")
+        Builder.load_string(ui_string)
         return Menu()
 
     @staticmethod

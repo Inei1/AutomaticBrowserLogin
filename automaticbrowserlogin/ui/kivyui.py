@@ -1,3 +1,4 @@
+ui_string = """
 #:import Factory kivy.factory.Factory
 <Menu@FloatLayout>:
     FloatLayout:
@@ -148,7 +149,7 @@
             size_hint: (0.6, 0.6)
             pos_hint: {"x": 0.2, "y": 0.35}
             markup: True
-            text: "[b]Are you sure you\n want to delete\n this login?[/b]"
+            text: "[b]Are you sure you\\n want to delete\\n this login?[/b]"
             color: 0, 0, 0, 1
             font_size: 36
         Button:
@@ -161,3 +162,4 @@
             pos_hint: {"x": 0.525, "y": 0.05}
             text: "No"
             on_release: root.dismiss()
+"""
