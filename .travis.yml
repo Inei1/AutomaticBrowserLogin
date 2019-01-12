@@ -4,6 +4,5 @@ python:
 install:
   pip install -r requirements.txt
   pip install nose
-os: windows
 script:
   nose
