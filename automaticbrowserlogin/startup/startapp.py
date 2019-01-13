@@ -1,9 +1,6 @@
 import io
 import zipfile
 
-from kivy.app import App
-from kivy.logger import Logger
-
 from selenium import webdriver
 import selenium.webdriver.chrome.options
 from selenium.webdriver.common.keys import Keys
@@ -15,6 +12,7 @@ from time import sleep
 import os
 import json
 import requests
+import logging
 
 
 # TODO: add some unit tests for this class
@@ -35,7 +33,7 @@ class Startup:
         try:
             options_file = open(options_directory, "r")
         except FileNotFoundError:
-            Logger.error("options file not found, unable to determine arguments")
+            logging.error("options file not found, unable to determine arguments")
             return
         options = json.load(options_file)
         self.arguments = options.get("args")
@@ -66,9 +64,9 @@ class Startup:
             driver_version_file = open(chrome_driver_version_directory, "r")
             driver_version = json.load(driver_version_file)
             if not os.path.isfile(driver_path) or latest != driver_version:
-                self.update_webdriver(appdata_dir, latest)
+                self.update_webdriver(latest)
         except FileNotFoundError:
-            self.update_webdriver(appdata_dir, latest)
+            self.update_webdriver(latest)
 
         browser_options = webdriver.chrome.options.Options()
         os.environ["webdriver.chrome.driver"] = driver_path
@@ -78,20 +76,18 @@ class Startup:
             browser_options.add_argument(self.arguments)
 
         # causes to not work if browser already open
-        appdata_local_dir = os.getenv("LOCALAPPDATA")
-        appdata_local_dir = appdata_local_dir.replace("\\", "/") + "/"
+        appdata_local_dir = os.getenv("LOCALAPPDATA").replace("\\", "/") + "/"
         browser_options.add_argument("user-data-dir=" + appdata_local_dir + "Google/Chrome/User Data")
 
         self.driver = webdriver.Chrome(executable_path=driver_path, chrome_options=browser_options)
 
     @staticmethod
-    def update_webdriver(appdata_dir, latest):
+    def update_webdriver(latest):
         """
         Download the newest version of the Chrome WebDriver using the online API.
         Since it is downloaded as a zip file, the process of unzipping must be done. The zip file itself is
         stored in memory with BytesIO, so it doesn't need to be cleaned up. This is a fair expenditure seeing as the
         ChromeDriver is only a few megabytes.
-        :param appdata_dir: the appdata directory
         :param latest: the latest version of the Chrome WebDriver
         :return: nothing
         """
@@ -118,8 +114,8 @@ class Startup:
         """
         if payload.get("username") == "" and payload.get("password") == "":
             return
-        Logger.debug("website:", website)
-        Logger.debug("payload:", payload)
+        logging.debug("website:", website)
+        logging.debug("payload:", payload)
         user = self.driver.find_element_by_xpath("//input[contains(@name, 'ser') or contains(@name, 'email') "
                                                  "or contains(@name, 'login') or contains(@type, 'email')]")
         user.send_keys(payload.get("username"))
@@ -161,7 +157,7 @@ class Startup:
         try:
             user_info = open(user_info_directory, "rb")
         except FileNotFoundError:
-            Logger.error("User info file not found")
+            logging.error("User info file not found")
             return
         for index, line in enumerate(user_info):
             website, username, password = PopupIO(index, user_info_directory).load_login()
@@ -171,11 +167,10 @@ class Startup:
         # close first tab
         self.driver.switch_to.window(self.driver.window_handles[0])
         self.driver.close()
-        App.get_running_app().stop()
 
 
 def run_autologin():
-    Logger.info("opening browser tabs")
+    logging.info("opening browser tabs")
     s = Startup()
     s.run()
 
