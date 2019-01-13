@@ -4,7 +4,7 @@ AutomaticBrowserLogin is a configurable python script that automatically opens b
 
 ## Installation
 
-The newest version of AutomaticBrowserLogin can be found on the releases page [here](https://github.com/Inei1/AutomaticBrowserLogin/releases). The file may be downloaded to any location. The `config.exe` executable is used to input desired websites and login information, as well as run arguments for Chrome. Look at the Usage section for information on configuring the program. Run `startup.exe` to test the program, then put it into the startup directory at `C:\ProgramData\Microsoft\Windows\Start Menu\Programs`. Hidden folders must to be visible to show `ProgramData`.
+The newest version of AutomaticBrowserLogin can be found on the releases page [here](https://github.com/Inei1/AutomaticBrowserLogin/releases). The file may be downloaded to any location. The `config.exe` executable is used to input desired websites and login information, as well as run arguments for Chrome. Look at the Usage section for information on configuring the program. Run `startup.exe` to test the program, then put it into the user startup directory at `C:\Users\Username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup`. Hidden folders must to be visible to show `ProgramData`.
 
 **_Note: The webbrowser that you wish to use must NOT be open for this program to work!_** 
 
