@@ -14,8 +14,6 @@ When first running the program, look at the options menu and enter any browser a
 
 ## Common Problems
 
-These common problems may or may not be fixable by you. Try opening "Startup.bat" to get debug messages and error messages.
-
 #### Website does not login correctly/browser stops prematurely:
 
 Report the website by opening a Github issue. Due to the nature of this program, this is not possible to fix on the user's end.
