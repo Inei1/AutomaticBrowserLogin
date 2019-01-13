@@ -5,7 +5,11 @@ import binascii
 
 keyring.set_keyring(Windows.WinVaultKeyring())
 
-root_directory = os.path.dirname(os.path.dirname(__file__))
+appdata_dir = os.getenv("APPDATA").replace("\\", "/") + "/"
+if not os.path.isdir(appdata_dir + "AutomaticBrowserLogin/"):
+    os.makedirs(appdata_dir + "AutomaticBrowserLogin/Webdrivers/")
+
+root_directory = appdata_dir + "AutomaticBrowserLogin"
 user_info_directory = root_directory + "/userinfo.json"
 user_info_test_directory = root_directory + "/userinfotest.json"
 temp_directory = root_directory + "/temp.json"

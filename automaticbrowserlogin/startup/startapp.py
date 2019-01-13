@@ -8,7 +8,7 @@ from selenium import webdriver
 import selenium.webdriver.chrome.options
 from selenium.webdriver.common.keys import Keys
 
-from automaticbrowserlogin import options_directory, user_info_directory, chrome_driver_version_directory
+from automaticbrowserlogin import options_directory, user_info_directory, chrome_driver_version_directory, appdata_dir
 from automaticbrowserlogin.ui.popupio import PopupIO
 
 from time import sleep
@@ -60,7 +60,6 @@ class Startup:
         Also, the ChromeDriver online API is used to determine if the latest version of the ChromeDriver is installed.
         :return: nothing
         """
-        appdata_dir = os.getenv("APPDATA").replace("\\", "/") + "/"
         driver_path = appdata_dir + "AutomaticBrowserLogin/WebDrivers/chromedriver_win32/chromedriver.exe"
         latest = requests.get("https://chromedriver.storage.googleapis.com/LATEST_RELEASE").text
         try:
@@ -96,8 +95,6 @@ class Startup:
         :param latest: the latest version of the Chrome WebDriver
         :return: nothing
         """
-        if not os.path.isdir(appdata_dir + "AutomaticBrowserLogin/"):
-            os.makedirs(appdata_dir + "AutomaticBrowserLogin/Webdrivers/")
         webdriver_download = requests.get("https://chromedriver.storage.googleapis.com/" + latest +
                                           "/chromedriver_win32.zip")
         webdriver_zip = zipfile.ZipFile(io.BytesIO(webdriver_download.content))
