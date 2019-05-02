@@ -22,6 +22,10 @@ Report the website by opening a Github issue. Due to the nature of this program,
 
 Double check that the information you entered is correct. Open a github issue if the username and password are confirmed to be correct.
 
+#### Program crashes before opening browser:
+
+Update Google Chrome and restart your computer.
+
 ## License
 
 This program is liscensed under MIT. See LICENSE.txt.
